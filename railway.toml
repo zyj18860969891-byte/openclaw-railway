@@ -1,0 +1,22 @@
+# OpenClaw Railway 部署配置
+
+[build]
+  type = "node"
+
+[deploy]
+  startCommand = "node dist/index.js"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+  MODEL_NAME = "anthropic/claude-opus-4-5"
+  OAUTH_ENABLED = "true"
+  GATEWAY_AUTH_MODE = "password"
+  SANDBOX_MODE = "non-main"
+  DM_SCOPE = "per-peer"
+
+[http_service]
+  internalPort = 3000
+  forceHTTPS = true
+  autoStartMachines = true
+  autoStopMachines = false

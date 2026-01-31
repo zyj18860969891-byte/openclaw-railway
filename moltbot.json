@@ -1,0 +1,62 @@
+{
+  "agent": {
+    "model": "anthropic/claude-opus-4-5",
+    "defaults": {
+      "workspace": "~/.openclaw",
+      "sandbox": {
+        "mode": "non-main"
+      }
+    }
+  },
+  "session": {
+    "dmScope": "per-peer"
+  },
+  "channels": {
+    "feishu": {
+      "enabled": false,
+      "appId": "${FEISHU_APP_ID}",
+      "appSecret": "${FEISHU_APP_SECRET}",
+      "connectionMode": "websocket",
+      "renderMode": "card"
+    },
+    "dingtalk": {
+      "enabled": false,
+      "clientId": "${DINGTALK_CLIENT_ID}",
+      "clientSecret": "${DINGTALK_CLIENT_SECRET}",
+      "dmPolicy": "pairing"
+    },
+    "qqbot": {
+      "enabled": false,
+      "appId": "${QQ_BOT_APP_ID}",
+      "clientSecret": "${QQ_BOT_CLIENT_SECRET}"
+    }
+  },
+  "gateway": {
+    "tailscale": {
+      "mode": "funnel"
+    },
+    "auth": {
+      "mode": "password"
+    }
+  },
+  "security": {
+    "sandbox": {
+      "enabled": true,
+      "mode": "non-main"
+    },
+    "isolation": {
+      "enabled": true,
+      "scope": "per-peer"
+    }
+  },
+  "skills": {
+    "enabled": true,
+    "sources": [
+      {
+        "type": "cli",
+        "command": "npx skills add",
+        "registry": "https://skills.sh"
+      }
+    ]
+  }
+}

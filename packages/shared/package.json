@@ -1,0 +1,16 @@
+{
+  "name": "@openclaw/shared",
+  "version": "0.1.13",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  },
+  "private": true
+}
