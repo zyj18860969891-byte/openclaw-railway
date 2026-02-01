@@ -46,3 +46,9 @@ Swabble/
 Core/
 Users/
 vendor/
+
+# Railway specific exclusions
+# Don't exclude pnpm-lock.yaml as it's required for Railway builds
+!pnpm-lock.yaml
+# Don't exclude pnpm-lock.yaml as it's required for Railway builds
+!pnpm-lock.yaml

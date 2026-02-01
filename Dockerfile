@@ -8,6 +8,9 @@ RUN corepack enable
 
 WORKDIR /app
 
+# Expose port 8080 for Railway
+EXPOSE 8080
+
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
 RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
       apt-get update && \
@@ -16,20 +19,32 @@ RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
       rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*; \
     fi
 
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-COPY ui/package.json ./ui/package.json
+# Copy dependency files first for better caching
+COPY package.json ./package.json
+COPY pnpm-lock.yaml ./pnpm-lock.yaml
+COPY pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY .npmrc ./.npmrc
+COPY ui/package.json ./ui/
 COPY patches ./patches
 COPY scripts ./scripts
 
+# Install dependencies
 RUN pnpm install --frozen-lockfile
 
+# Copy the rest of the application
 COPY . .
+
+# Build the application
 RUN OPENCLAW_A2UI_SKIP_MISSING=1 pnpm build
 # Force pnpm for UI build (Bun may fail on ARM/Synology architectures)
 ENV OPENCLAW_PREFER_PNPM=1
 RUN pnpm ui:build
 
 ENV NODE_ENV=production
+ENV PORT=8080
+
+# Create data directory for persistent storage
+RUN mkdir -p /data && chown -R node:node /data
 
 # Security hardening: Run as non-root user
 # The node:22-bookworm image includes a 'node' user (uid 1000)

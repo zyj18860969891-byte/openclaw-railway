@@ -1,22 +1,29 @@
 # OpenClaw Railway 部署配置
 
 [build]
-  type = "node"
+  builder = "dockerfile"
+  dockerfilePath = "Dockerfile"
 
 [deploy]
   startCommand = "node dist/index.js"
+  healthcheckPath = "/health"
+  healthcheckTimeout = 300
+  restartPolicyType = "on_failure"
+  restartPolicyMaxRetries = 3
 
 [env]
   NODE_ENV = "production"
-  PORT = "3000"
+  PORT = "8080"
   MODEL_NAME = "anthropic/claude-opus-4-5"
   OAUTH_ENABLED = "true"
   GATEWAY_AUTH_MODE = "password"
   SANDBOX_MODE = "non-main"
   DM_SCOPE = "per-peer"
+  OPENCLAW_STATE_DIR = "/data/.openclaw"
+  OPENCLAW_WORKSPACE_DIR = "/data/workspace"
 
 [http_service]
-  internalPort = 3000
+  internalPort = 8080
   forceHTTPS = true
   autoStartMachines = true
   autoStopMachines = false
