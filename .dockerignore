@@ -1,4 +1,10 @@
+# Git
 .git
+.gitignore
+.gitattributes
+.gitmodules
+
+# Development files
 .worktrees
 .bun-cache
 .bun
@@ -24,10 +30,40 @@ node_modules
 .cache
 **/.cache
 .next
-**/.next
+**/next
 coverage
 **/coverage
 *.log
+
+# Railway specific
+deploy-railway*.sh
+deploy-railway*.ps1
+setup-railway*.bat
+setup-railway*.ps1
+DEPLOYMENT_*.md
+RAILWAY_*.md
+VOLUME_SETUP_GUIDE.md
+
+# Documentation
+docs/
+images/
+references/
+skills/
+
+# Test files
+test/
+*.test.*
+*.spec.*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+Thumbs.db
+Desktop.ini
 tmp
 **/tmp
 
@@ -48,7 +84,5 @@ Users/
 vendor/
 
 # Railway specific exclusions
-# Don't exclude pnpm-lock.yaml as it's required for Railway builds
-!pnpm-lock.yaml
 # Don't exclude pnpm-lock.yaml as it's required for Railway builds
 !pnpm-lock.yaml

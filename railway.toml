@@ -4,7 +4,7 @@
   builder = "dockerfile"
 
 [deploy]
-  startCommand = "node dist/index.js gateway --allow-unconfigured --port 8080 --auth password --password password123"
+  startCommand = "node dist/index.js gateway --allow-unconfigured --port 8080 --auth token"
   restartPolicyType = "on_failure"
   restartPolicyMaxRetries = 3
 
@@ -13,9 +13,13 @@
   PORT = "8080"
   MODEL_NAME = "anthropic/claude-opus-4-5"
   OAUTH_ENABLED = "true"
-  GATEWAY_AUTH_MODE = "password"
-  GATEWAY_PASSWORD = "password123"
+  GATEWAY_AUTH_MODE = "token"
+  # 令牌认证（推荐）- 更安全的认证方式
+  # GATEWAY_TOKEN 将在Railway控制台中设置
   SANDBOX_MODE = "non-main"
   DM_SCOPE = "per-peer"
   OPENCLAW_STATE_DIR = "/tmp/openclaw"
   OPENCLAW_WORKSPACE_DIR = "/tmp/workspace"
+  # 修复权限问题
+  HOME = "/tmp"
+  USER = "root"
