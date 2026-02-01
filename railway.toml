@@ -5,8 +5,8 @@
 
 [deploy]
   startCommand = "node dist/index.js gateway --allow-unconfigured --port 8080 --auth password --password password123"
-  healthcheckPath = "/"
-  healthcheckTimeout = 300
+  healthcheckPath = "/health"
+  healthcheckTimeout = 30
   restartPolicyType = "on_failure"
   restartPolicyMaxRetries = 3
 
@@ -16,7 +16,9 @@
   MODEL_NAME = "anthropic/claude-opus-4-5"
   OAUTH_ENABLED = "true"
   GATEWAY_AUTH_MODE = "password"
+  GATEWAY_PASSWORD = "password123"
   SANDBOX_MODE = "non-main"
   DM_SCOPE = "per-peer"
+  OPENCLAW_DATA_DIR = "/tmp/openclaw"
   OPENCLAW_STATE_DIR = "/data/.openclaw"
   OPENCLAW_WORKSPACE_DIR = "/data/workspace"

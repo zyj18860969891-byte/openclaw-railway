@@ -35,7 +35,7 @@ ENV NODE_ENV=production
 ENV PORT=8080
 
 # Create data directory for persistent storage
-RUN mkdir -p /data && chown -R node:node /data
+RUN mkdir -p /tmp/openclaw && chown -R node:node /tmp/openclaw
 
 # Ensure dist directory has correct permissions for node user
 RUN chown -R node:node /app/dist
