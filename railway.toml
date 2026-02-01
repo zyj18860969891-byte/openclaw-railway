@@ -6,9 +6,9 @@
 [deploy]
   startCommand = "node scripts/run-node.mjs gateway --allow-unconfigured"
   healthcheckPath = "/health"
-  healthcheckTimeout = 300
+  healthcheckTimeout = 600
   restartPolicyType = "on_failure"
-  restartPolicyMaxRetries = 3
+  restartPolicyMaxRetries = 5
 
 [env]
   NODE_ENV = "production"
@@ -20,3 +20,9 @@
   DM_SCOPE = "per-peer"
   OPENCLAW_STATE_DIR = "/data/.openclaw"
   OPENCLAW_WORKSPACE_DIR = "/data/workspace"
+
+[http_service]
+  internalPort = 8080
+  forceHTTPS = true
+  autoStartMachines = true
+  autoStopMachines = false
