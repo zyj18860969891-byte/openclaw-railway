@@ -18,5 +18,4 @@
   SANDBOX_MODE = "non-main"
   DM_SCOPE = "per-peer"
   OPENCLAW_STATE_DIR = "/tmp/openclaw"
-  OPENCLAW_STATE_DIR = "/data/.openclaw"
-  OPENCLAW_WORKSPACE_DIR = "/data/workspace"
+  OPENCLAW_WORKSPACE_DIR = "/tmp/workspace"
