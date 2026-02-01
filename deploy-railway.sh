@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# OpenClaw Railway 快速部署脚本
-# 基于 NotebookLM 部署指南
+# OpenClaw Railway 令牌修复脚本
+# 解决令牌配置问题
 
 set -e
 
-echo "🚀 OpenClaw Railway 快速部署脚本"
-echo "=================================="
+echo "🔧 OpenClaw Railway 令牌修复脚本"
+echo "================================="
 
 # 检查必要工具
 check_requirements() {
@@ -47,57 +47,68 @@ build_project() {
     echo "✅ 项目构建完成"
 }
 
-# 检查环境变量
-check_env() {
-    echo "🔍 检查环境变量..."
+# 修复令牌配置
+fix_token_config() {
+    echo "🔧 修复令牌配置..."
     
-    if [ ! -f ".env" ]; then
-        echo "⚠️  .env 文件不存在，创建示例..."
-        cp .railway.env.example .env
-        echo "📝 请编辑 .env 文件并填入必要的环境变量"
-        echo "   特别是：GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, DATABASE_URL"
-        read -p "按回车键继续..."
-    fi
+    # 生成新的安全令牌
+    NEW_TOKEN=$(openssl rand -hex 32)
+    echo "生成的令牌: $NEW_TOKEN"
     
-    # 检查关键环境变量
-    source .env
-    if [ -z "$GOOGLE_CLIENT_ID" ] || [ -z "$GOOGLE_CLIENT_SECRET" ]; then
-        echo "❌ 请在 .env 文件中设置 GOOGLE_CLIENT_ID 和 GOOGLE_CLIENT_SECRET"
-        exit 1
-    fi
+    # 更新 railway.toml 文件
+    echo "更新 railway.toml 配置..."
     
-    echo "✅ 环境变量检查完成"
+    # 备份原始文件
+    cp railway.toml railway.toml.backup
+    
+    # 更新启动命令
+    sed -i "s/startCommand = \"node dist\/index.js gateway --allow-unconfigured --port 8080 --auth token --token .*/startCommand = \"node dist\/index.js gateway --allow-unconfigured --port 8080 --auth token --token $NEW_TOKEN\"/" railway.toml
+    
+    # 更新环境变量
+    sed -i "s/OPENCLAW_GATEWAY_TOKEN = .*/OPENCLAW_GATEWAY_TOKEN = \"$NEW_TOKEN\"/" railway.toml
+    
+    echo "✅ 配置已更新:"
+    echo "   启动命令: node dist/index.js gateway --allow-unconfigured --port 8080 --auth token --token $NEW_TOKEN"
+    echo "   环境变量: OPENCLAW_GATEWAY_TOKEN=$NEW_TOKEN"
 }
 
-# Railway 登录
-railway_login() {
-    echo "🚂 Railway 登录..."
-    railway login
-    echo "✅ Railway 登录成功"
+# 提交更改
+commit_changes() {
+    echo "📝 提交更改到 Git..."
+    
+    git add railway.toml
+    git commit -m "修复令牌配置: $NEW_TOKEN"
+    
+    echo "✅ 更改已提交"
 }
 
-# 部署到 Railway
-deploy_to_railway() {
-    echo "🚀 部署到 Railway..."
-    railway up
-    echo "✅ 部署完成"
+# 推送到远程仓库
+push_to_remote() {
+    echo "🚀 推送更改到远程仓库..."
+    
+    git push
+    
+    echo "✅ 更改已推送到远程仓库"
 }
 
 # 显示部署信息
 show_deployment_info() {
     echo ""
-    echo "🎉 部署完成！"
+    echo "🎉 令牌配置修复完成！"
     echo "=================================="
-    echo "📖 访问 Railway 控制台："
-    echo "   railway dashboard"
+    echo "🔄 Railway 将自动重新部署"
     echo ""
-    echo "🔗 应用地址："
-    echo "   $(railway status | grep -o 'https://[^ ]*')"
+    echo "🔑 连接令牌:"
+    echo "   $NEW_TOKEN"
     echo ""
-    echo "📋 查看日志："
+    echo "🔗 连接示例:"
+    echo "   ws://your-railway-app.railway.app:8080?token=$NEW_TOKEN"
+    echo ""
+    echo "📋 查看部署状态:"
     echo "   railway logs"
     echo ""
-    echo "🔄 重新部署："
+    echo "🔄 重新部署命令:"
+    echo "   railway up"
     echo "   railway up"
     echo ""
     echo "⚙️  配置说明："
@@ -108,17 +119,14 @@ show_deployment_info() {
 
 # 主函数
 main() {
-    echo "开始部署流程..."
+    echo "开始令牌修复流程..."
     
-    check_requirements
-    install_dependencies
-    build_project
-    check_env
-    railway_login
-    deploy_to_railway
+    fix_token_config
+    commit_changes
+    push_to_remote
     show_deployment_info
     
-    echo "🎊 所有步骤完成！"
+    echo "🎊 令牌修复完成！"
 }
 
 # 运行主函数

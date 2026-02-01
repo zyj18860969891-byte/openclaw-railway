@@ -4,7 +4,7 @@
   builder = "dockerfile"
 
 [deploy]
-  startCommand = "node dist/index.js gateway --allow-unconfigured --port 8080 --auth token"
+  startCommand = "node dist/index.js gateway --allow-unconfigured --port 8080 --auth token --token aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A"
   restartPolicyType = "on_failure"
   restartPolicyMaxRetries = 3
 
@@ -14,7 +14,7 @@
   MODEL_NAME = "anthropic/claude-opus-4-5"
   OAUTH_ENABLED = "true"
   GATEWAY_AUTH_MODE = "token"
-  # 令牌认证（推荐）- 使用预生成的令牌
+  # 令牌认证（推荐）- 直接在启动命令中指定
   OPENCLAW_GATEWAY_TOKEN = "aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A"
   SANDBOX_MODE = "non-main"
   DM_SCOPE = "per-peer"
