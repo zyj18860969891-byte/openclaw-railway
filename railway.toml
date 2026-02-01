@@ -14,8 +14,8 @@
   MODEL_NAME = "anthropic/claude-opus-4-5"
   OAUTH_ENABLED = "true"
   GATEWAY_AUTH_MODE = "token"
-  # 令牌认证（推荐）- 更安全的认证方式
-  # GATEWAY_TOKEN 将在Railway控制台中设置
+  # 令牌认证（推荐）- 使用预生成的令牌
+  OPENCLAW_GATEWAY_TOKEN = "aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A"
   SANDBOX_MODE = "non-main"
   DM_SCOPE = "per-peer"
   OPENCLAW_STATE_DIR = "/tmp/openclaw"
