@@ -5,9 +5,12 @@
 
 [deploy]
   startCommand = "node dist/index.js gateway --allow-unconfigured --port 8080 --auth token --token aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A"
-  restartPolicyType = "on_failure"
-  restartPolicyMaxRetries = 3
+  restartPolicyType = "always"
+  restartPolicyMaxRetries = 10
   healthcheckPath = "/__openclaw__/canvas/"
+  healthcheckInterval = 30
+  healthcheckTimeout = 10
+  healthcheckMaxRetries = 5
 
 [env]
   NODE_ENV = "production"
