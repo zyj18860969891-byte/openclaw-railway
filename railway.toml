@@ -4,7 +4,7 @@
   builder = "dockerfile"
 
 [deploy]
-  startCommand = "node dist/index.js gateway --allow-unconfigured --port 8080 --auth token --token aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A --bind lan --gateway.trustedProxies 100.64.0.0/10"
+  startCommand = "node dist/index.js gateway --allow-unconfigured --port 8080 --auth token --token aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A --bind lan"
   restartPolicyType = "always"
   restartPolicyMaxRetries = 10
 
@@ -18,8 +18,11 @@
   OPENCLAW_GATEWAY_TOKEN = "aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A"
   # WebSocket 令牌配置
   OPENCLAW_WS_TOKEN = "aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A"
-  # 代理信任配置
+  # 代理信任配置 - 通过环境变量设置
   GATEWAY_TRUSTED_PROXIES = "100.64.0.0/10"
+  # Gateway 配置
+  OPENCLAW_GATEWAY_BIND = "lan"
+  OPENCLAW_GATEWAY_TRUSTED_PROXIES = "100.64.0.0/10"
   SANDBOX_MODE = "non-main"
   DM_SCOPE = "per-peer"
   OPENCLAW_STATE_DIR = "/tmp/openclaw"
