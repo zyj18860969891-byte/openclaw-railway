@@ -18,7 +18,20 @@ cat > /app/extensions/dingtalk/openclaw.plugin.json << 'EOF'
   "version": "1.0.0",
   "description": "DingTalk plugin for OpenClaw",
   "main": "index.js",
-  "dependencies": {}
+  "dependencies": {},
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "botToken": {
+        "type": "string",
+        "description": "DingTalk bot token"
+      },
+      "apiKey": {
+        "type": "string",
+        "description": "DingTalk API key"
+      }
+    }
+  }
 }
 EOF
 
@@ -29,7 +42,20 @@ cat > /app/extensions/feishu/openclaw.plugin.json << 'EOF'
   "version": "1.0.0",
   "description": "Feishu plugin for OpenClaw",
   "main": "index.js",
-  "dependencies": {}
+  "dependencies": {},
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "appID": {
+        "type": "string",
+        "description": "Feishu app ID"
+      },
+      "appSecret": {
+        "type": "string",
+        "description": "Feishu app secret"
+      }
+    }
+  }
 }
 EOF
 
@@ -40,7 +66,20 @@ cat > /app/extensions/wecom/openclaw.plugin.json << 'EOF'
   "version": "1.0.0",
   "description": "WeCom plugin for OpenClaw",
   "main": "index.js",
-  "dependencies": {}
+  "dependencies": {},
+  "configSchema": {
+    "type": "object",
+    "properties": {
+      "corpID": {
+        "type": "string",
+        "description": "WeCom corp ID"
+      },
+      "corpSecret": {
+        "type": "string",
+        "description": "WeCom corp secret"
+      }
+    }
+  }
 }
 EOF
 
