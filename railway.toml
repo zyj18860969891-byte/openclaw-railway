@@ -4,11 +4,11 @@
   builder = "dockerfile"
 
 [deploy]
-  startCommand = "node scripts/run-node.mjs gateway --allow-unconfigured"
-  healthcheckPath = "/health"
-  healthcheckTimeout = 600
+  startCommand = "node dist/index.js gateway --allow-unconfigured --port 8080"
+  healthcheckPath = "/"
+  healthcheckTimeout = 300
   restartPolicyType = "on_failure"
-  restartPolicyMaxRetries = 5
+  restartPolicyMaxRetries = 3
 
 [env]
   NODE_ENV = "production"
@@ -20,9 +20,3 @@
   DM_SCOPE = "per-peer"
   OPENCLAW_STATE_DIR = "/data/.openclaw"
   OPENCLAW_WORKSPACE_DIR = "/data/workspace"
-
-[http_service]
-  internalPort = 8080
-  forceHTTPS = true
-  autoStartMachines = true
-  autoStopMachines = false

@@ -43,5 +43,5 @@ RUN chown -R node:node /app/dist
 # Security hardening: Run as non-root user
 USER node
 
-# Railway health check endpoint
-CMD ["node", "scripts/run-node.mjs", "gateway", "--allow-unconfigured"]
+# Railway health check endpoint - use root path for compatibility
+CMD ["node", "dist/index.js", "gateway", "--allow-unconfigured", "--port", "8080"]
