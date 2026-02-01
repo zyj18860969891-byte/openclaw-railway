@@ -1,0 +1,49 @@
+# Railway 优化的 Dockerfile
+FROM node:22-bookworm@sha256:cd7bcd2e7a1e6f72052feb023c7f6b722205d3fcab7bbcbd2d1bfdab10b1e935
+
+# 安装 Bun（构建脚本需要）
+RUN curl -fsSL https://bun.sh/install | bash
+ENV PATH="/root/.bun/bin:${PATH}"
+
+RUN corepack enable
+
+WORKDIR /app
+
+# Railway 环境变量
+ARG OPENCLAW_DOCKER_APT_PACKAGES=""
+RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
+      apt-get update && \
+      DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $OPENCLAW_DOCKER_APT_PACKAGES && \
+      apt-get clean && \
+      rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*; \
+    fi
+
+# 复制依赖文件以获得更好的缓存
+COPY package.json ./package.json
+COPY pnpm-lock.yaml ./pnpm-lock.yaml
+COPY pnpm-workspace.yaml ./pnpm-workspace.yaml
+COPY .npmrc ./.npmrc
+
+# 安装依赖
+RUN pnpm install --frozen-lockfile
+
+# 复制源代码
+COPY scripts ./scripts
+COPY src ./src
+COPY apps ./apps
+COPY packages ./packages
+COPY extensions ./extensions
+COPY patches ./patches
+
+# 构建 UI
+COPY ui/package.json ./ui/
+RUN pnpm ui:build
+
+# 构建应用程序
+RUN OPENCLAW_A2UI_SKIP_MISSING=1 pnpm build
+
+# 创建数据目录
+RUN mkdir -p /data && chown -R node:node /data
+
+# Railway 暴露端口
+EXPOSE 8080
