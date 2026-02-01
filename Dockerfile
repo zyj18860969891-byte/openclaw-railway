@@ -37,6 +37,10 @@ ENV PORT=8080
 # Create data directory for persistent storage
 RUN mkdir -p /tmp/openclaw && chown -R node:node /tmp/openclaw
 
+# Set environment variable to use temporary directory
+ENV OPENCLAW_STATE_DIR=/tmp/openclaw
+ENV HOME=/tmp/openclaw
+
 # Ensure dist directory has correct permissions for node user
 RUN chown -R node:node /app/dist
 

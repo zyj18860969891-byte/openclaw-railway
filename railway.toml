@@ -5,8 +5,6 @@
 
 [deploy]
   startCommand = "node dist/index.js gateway --allow-unconfigured --port 8080 --auth password --password password123"
-  healthcheckPath = "/health"
-  healthcheckTimeout = 30
   restartPolicyType = "on_failure"
   restartPolicyMaxRetries = 3
 
@@ -19,6 +17,6 @@
   GATEWAY_PASSWORD = "password123"
   SANDBOX_MODE = "non-main"
   DM_SCOPE = "per-peer"
-  OPENCLAW_DATA_DIR = "/tmp/openclaw"
+  OPENCLAW_STATE_DIR = "/tmp/openclaw"
   OPENCLAW_STATE_DIR = "/data/.openclaw"
   OPENCLAW_WORKSPACE_DIR = "/data/workspace"
