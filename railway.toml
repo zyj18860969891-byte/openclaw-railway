@@ -2,7 +2,6 @@
 
 [build]
   builder = "dockerfile"
-  dockerfilePath = "Dockerfile.railway"
 
 [deploy]
   startCommand = "node scripts/run-node.mjs gateway --allow-unconfigured"
