@@ -41,6 +41,7 @@ ENV PORT=8080
 # Create data directory for persistent storage
 RUN mkdir -p /tmp/openclaw && chown -R root:root /tmp/openclaw
 RUN mkdir -p /tmp/workspace && chown -R root:root /tmp/workspace
+RUN mkdir -p /data/.openclaw && chown -R root:root /data/.openclaw
 
 # Set environment variable to use temporary directory
 ENV OPENCLAW_STATE_DIR=/tmp/openclaw
@@ -52,7 +53,7 @@ ENV USER=root
 RUN chown -R node:node /app/dist
 
 # Security hardening: Run as non-root user
-USER node
+USER root
 
 # Railway health check endpoint - use root path for compatibility
 CMD ["node", "dist/index.js", "gateway", "--allow-unconfigured", "--port", "8080"]

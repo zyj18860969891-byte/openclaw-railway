@@ -13,6 +13,7 @@ mkdir -p /app/extensions/wecom
 # 创建基本的插件清单文件
 cat > /app/extensions/dingtalk/openclaw.plugin.json << 'EOF'
 {
+  "id": "dingtalk",
   "name": "dingtalk",
   "version": "1.0.0",
   "description": "DingTalk plugin for OpenClaw",
@@ -23,6 +24,7 @@ EOF
 
 cat > /app/extensions/feishu/openclaw.plugin.json << 'EOF'
 {
+  "id": "feishu",
   "name": "feishu",
   "version": "1.0.0",
   "description": "Feishu plugin for OpenClaw",
@@ -33,6 +35,7 @@ EOF
 
 cat > /app/extensions/wecom/openclaw.plugin.json << 'EOF'
 {
+  "id": "wecom",
   "name": "wecom",
   "version": "1.0.0",
   "description": "WeCom plugin for OpenClaw",
