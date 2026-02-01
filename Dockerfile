@@ -31,17 +31,18 @@ RUN OPENCLAW_A2UI_SKIP_MISSING=1 pnpm build
 ENV OPENCLAW_PREFER_PNPM=1
 RUN pnpm ui:build
 
-# Fix plugin manifest issues and generate secure token
-RUN chmod +x /app/fix-plugins.sh && /app/fix-plugins.sh
-RUN chmod +x /app/generate-token.sh && /app/generate-token.sh
-
-ENV NODE_ENV=production
-ENV PORT=8080
-
-# Create data directory for persistent storage
+# Create data directory for persistent storage first
 RUN mkdir -p /tmp/openclaw && chown -R root:root /tmp/openclaw
 RUN mkdir -p /tmp/workspace && chown -R root:root /tmp/workspace
 RUN mkdir -p /data/.openclaw && chown -R root:root /data/.openclaw
+
+# Fix plugin manifest issues and generate secure token
+RUN chmod +x /app/fix-plugins.sh && /app/fix-plugins.sh
+RUN chmod +x /app/generate-token.sh && /app/generate-token.sh
+RUN chmod +x /app/healthcheck.sh
+
+ENV NODE_ENV=production
+ENV PORT=8080
 
 # Set environment variable to use temporary directory
 ENV OPENCLAW_STATE_DIR=/tmp/openclaw
