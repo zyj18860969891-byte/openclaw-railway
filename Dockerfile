@@ -19,23 +19,11 @@ RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
       rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*; \
     fi
 
-# Copy dependency files first for better caching
-COPY package.json ./package.json
-COPY pnpm-lock.yaml ./pnpm-lock.yaml
-COPY pnpm-workspace.yaml ./pnpm-workspace.yaml
-COPY .npmrc ./.npmrc
+# Copy all files first (simplified approach)
+COPY . .
 
 # Install dependencies
-RUN pnpm install --frozen-lockfile
-
-# Copy all source files
-COPY scripts ./scripts
-COPY src ./src
-COPY apps ./apps
-COPY packages ./packages
-COPY extensions ./extensions
-COPY patches ./patches
-COPY ui ./ui
+RUN pnpm install
 
 # Build the application
 RUN OPENCLAW_A2UI_SKIP_MISSING=1 pnpm build
@@ -53,8 +41,6 @@ RUN mkdir -p /data && chown -R node:node /data
 RUN chown -R node:node /app/dist
 
 # Security hardening: Run as non-root user
-# The node:22-bookworm image includes a 'node' user (uid 1000)
-# This reduces the attack surface by preventing container escape via root privileges
 USER node
 
 # Railway health check endpoint

@@ -20,9 +20,3 @@
   DM_SCOPE = "per-peer"
   OPENCLAW_STATE_DIR = "/data/.openclaw"
   OPENCLAW_WORKSPACE_DIR = "/data/workspace"
-
-[http_service]
-  internalPort = 8080
-  forceHTTPS = true
-  autoStartMachines = true
-  autoStopMachines = false
