@@ -12,6 +12,15 @@ mkdir -p /data/.openclaw
 GATEWAY_PORT=8080
 echo "使用端口: $GATEWAY_PORT"
 
+# 使用正确的token环境变量
+if [ -n "$OPENCLAW_GATEWAY_TOKEN" ]; then
+    TOKEN="$OPENCLAW_GATEWAY_TOKEN"
+    echo "使用token环境变量"
+else
+    TOKEN="aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A"
+    echo "使用默认token"
+fi
+
 # 检查配置文件是否存在
 CONFIG_PATH="/tmp/openclaw/openclaw.json"
 if [ ! -f "$CONFIG_PATH" ]; then
@@ -24,7 +33,7 @@ if [ ! -f "$CONFIG_PATH" ]; then
     "bind": "lan",
     "auth": {
       "mode": "token",
-      "token": "aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A"
+      "token": "$TOKEN"
     },
     "trustedProxies": ["100.64.0.0/10"]
   },

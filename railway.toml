@@ -13,8 +13,8 @@
   MODEL_NAME = "anthropic/claude-opus-4.5"
   OAUTH_ENABLED = "true"
   GATEWAY_AUTH_MODE = "token"
-  # 令牌认证 - 使用正确的环境变量格式
-  GATEWAY_TOKEN = "aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A"
+  # 令牌认证 - 直接设置token环境变量
+  OPENCLAW_GATEWAY_TOKEN = "aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A"
   # Gateway 配置 - 使用正确的环境变量格式
   GATEWAY_TRUSTED_PROXIES = "100.64.0.0/10"
   GATEWAY_BIND = "lan"
