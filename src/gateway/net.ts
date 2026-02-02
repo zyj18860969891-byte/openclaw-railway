@@ -69,9 +69,10 @@ function ipInCidrRange(ip: string, cidr: string): boolean {
 
     const ipBigInt = ipToBigInt(ip);
     const rangeBigInt = ipToBigInt(range);
-    const mask = prefix === 0 ? 0n : (1n << BigInt(32 - prefix)) - 1n;
+    // Create network mask: first 'prefix' bits are 1, rest are 0
+    const mask = prefix === 0 ? 0n : (1n << BigInt(32)) - (1n << BigInt(32 - prefix));
 
-    return (ipBigInt & ~mask) === (rangeBigInt & ~mask);
+    return (ipBigInt & mask) === (rangeBigInt & mask);
   } catch {
     return false;
   }
