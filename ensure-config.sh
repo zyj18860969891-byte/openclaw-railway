@@ -41,12 +41,12 @@ cat <<EOF > "$CONFIG_PATH"
       "mode": "token",
       "token": "$TOKEN"
     },
-    "trustedProxies": ["100.64.0.0/10"]
-  },
-  "controlUi": {
-    "enabled": true,
-    "allowInsecureAuth": true,
-    "dangerouslyDisableDeviceAuth": true
+    "trustedProxies": ["100.64.0.0/10"],
+    "controlUi": {
+      "enabled": true,
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true
+    }
   },
   "canvasHost": {
     "enabled": true

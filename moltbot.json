@@ -37,6 +37,11 @@
     },
     "auth": {
       "mode": "password"
+    },
+    "controlUi": {
+      "enabled": true,
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true
     }
   },
   "security": {
