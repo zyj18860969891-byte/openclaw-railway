@@ -97,6 +97,11 @@ EOF
 chmod 600 "$CONFIG_PATH"
 echo "配置文件已创建，端口设置为: $GATEWAY_PORT，token已设置"
 
+# 显示配置文件内容以便调试
+echo "配置文件内容："
+cat "$CONFIG_PATH"
+echo ""
+
 # 确保配置文件权限正确
 chmod 600 "$CONFIG_PATH"
 
