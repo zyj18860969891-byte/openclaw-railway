@@ -19,6 +19,7 @@
   # Gateway 配置 - 使用正确的环境变量格式
   GATEWAY_TRUSTED_PROXIES = "100.64.0.0/10"
   GATEWAY_BIND = "lan"
+  GATEWAY_PORT = "8080"
   SANDBOX_MODE = "non-main"
   DM_SCOPE = "per-peer"
   OPENCLAW_STATE_DIR = "/tmp/openclaw"
