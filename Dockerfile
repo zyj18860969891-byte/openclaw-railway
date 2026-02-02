@@ -38,7 +38,7 @@ RUN mkdir -p /data/.openclaw && chown -R root:root /data/.openclaw
 
 # Fix plugin manifest issues
 RUN chmod +x /app/fix-plugins.sh && /app/fix-plugins.sh
-RUN chmod +x /app/ensure-config.sh && /app/ensure-config.sh
+RUN chmod +x /app/ensure-config.sh
 RUN chmod +x /app/healthcheck.sh
 
 ENV NODE_ENV=production
