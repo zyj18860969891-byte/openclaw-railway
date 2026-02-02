@@ -8,9 +8,9 @@ echo "正在检查OpenClaw配置文件..."
 mkdir -p /tmp/openclaw
 mkdir -p /data/.openclaw
 
-# 使用OpenClaw的默认端口
-GATEWAY_PORT=18789
-echo "使用OpenClaw默认端口: $GATEWAY_PORT"
+# 使用Railway分配的端口
+GATEWAY_PORT=8080
+echo "使用端口: $GATEWAY_PORT"
 
 # 检查配置文件是否存在
 CONFIG_PATH="/tmp/openclaw/openclaw.json"

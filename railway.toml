@@ -4,7 +4,7 @@
   builder = "dockerfile"
 
 [deploy]
-  startCommand = "node openclaw.mjs gateway --allow-unconfigured --auth token --token aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A --bind lan --verbose"
+  startCommand = "node openclaw.mjs gateway --allow-unconfigured --auth token --token aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A --bind lan --port 8080 --verbose"
   restartPolicyType = "always"
   restartPolicyMaxRetries = 10
 
@@ -18,8 +18,8 @@
   # Gateway 配置 - 使用正确的环境变量格式
   GATEWAY_TRUSTED_PROXIES = "100.64.0.0/10"
   GATEWAY_BIND = "lan"
-  # 修复端口配置问题 - 让OpenClaw使用默认端口
-  OPENCLAW_GATEWAY_PORT = "18789"
+  # 修复端口配置问题 - 使用Railway分配的端口
+  OPENCLAW_GATEWAY_PORT = "8080"
   SANDBOX_MODE = "non-main"
   DM_SCOPE = "per-peer"
   OPENCLAW_STATE_DIR = "/tmp/openclaw"
@@ -33,4 +33,4 @@
   OPENCLAW_CONFIG_PATH = "/tmp/openclaw/openclaw.json"
 
 [httpService]
-  port = 18789
+  port = 8080
