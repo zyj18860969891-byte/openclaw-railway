@@ -67,14 +67,16 @@ cat <<EOF > "$CONFIG_PATH"
   "canvasHost": {
     "enabled": true
   },
-  "sandbox": {
-    "mode": "non-main",
-    "stateDir": "/tmp/openclaw",
-    "workspaceDir": "/tmp/workspace"
+  "agents": {
+    "defaults": {
+      "sandbox": {
+        "mode": "non-main"
+      }
+    }
   },
   "logging": {
     "level": "info",
-    "format": "json"
+    "consoleStyle": "json"
   }
 }
 EOF
