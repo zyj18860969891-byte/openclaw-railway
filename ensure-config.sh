@@ -21,6 +21,22 @@ else
     echo "使用默认token: ${TOKEN:0:20}..."
 fi
 
+# 从环境变量读取 trustedProxies，保持与 railway.toml 一致
+if [ -n "$GATEWAY_TRUSTED_PROXIES" ]; then
+    # 将逗号分隔的字符串转换为 JSON 数组
+    IFS=',' read -ra PROXIES <<< "$GATEWAY_TRUSTED_PROXIES"
+    TRUSTED_PROXIES_JSON="["
+    for PROXY in "${PROXIES[@]}"; do
+        PROXY=$(echo "$PROXY" | xargs)
+        [ -n "$PROXY" ] && TRUSTED_PROXIES_JSON="${TRUSTED_PROXIES_JSON}\"${PROXY}\","
+    done
+    TRUSTED_PROXIES_JSON="${TRUSTED_PROXIES_JSON%,}]"
+    echo "使用 GATEWAY_TRUSTED_PROXIES: $GATEWAY_TRUSTED_PROXIES"
+else
+    TRUSTED_PROXIES_JSON="[\"100.64.0.0/10\"]"
+    echo "使用默认 trustedProxies"
+fi
+
 # 配置文件路径
 CONFIG_PATH="/tmp/openclaw/openclaw.json"
 
@@ -41,7 +57,7 @@ cat <<EOF > "$CONFIG_PATH"
       "mode": "token",
       "token": "$TOKEN"
     },
-    "trustedProxies": ["100.64.0.0/10"],
+    "trustedProxies": $TRUSTED_PROXIES_JSON,
     "controlUi": {
       "enabled": true,
       "allowInsecureAuth": true,
@@ -83,5 +99,10 @@ cat "$CONFIG_PATH"
 echo ""
 echo "配置文件中的token值："
 grep -o '"token": "[^"]*"' "$CONFIG_PATH" || echo "未找到token字段"
+
+# 关键：设置环境变量确保 OpenClaw 使用正确的配置文件
+export OPENCLAW_STATE_DIR="/tmp/openclaw"
+export OPENCLAW_CONFIG_PATH="/tmp/openclaw/openclaw.json"
+echo "设置环境变量: OPENCLAW_STATE_DIR=$OPENCLAW_STATE_DIR, OPENCLAW_CONFIG_PATH=$OPENCLAW_CONFIG_PATH"
 
 echo "配置文件检查完成"
