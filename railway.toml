@@ -4,7 +4,7 @@
   builder = "dockerfile"
 
 [deploy]
-  startCommand = "node openclaw.mjs gateway --allow-unconfigured --auth token --token aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A --bind lan --port 8080 --verbose"
+  startCommand = "bash -c 'echo \"=== 环境变量 ===\"; env | sort; echo \"=== 生成配置前 ===\"; cat /tmp/openclaw/openclaw.json 2>/dev/null || echo \"配置文件不存在\"; /app/ensure-config.sh; echo \"=== 生成配置后 ===\"; cat /tmp/openclaw/openclaw.json; echo \"=== 启动OpenClaw ===\"; exec node openclaw.mjs gateway --allow-unconfigured --auth token --bind lan --port 8080 --verbose'"
   restartPolicyType = "always"
   restartPolicyMaxRetries = 10
 
