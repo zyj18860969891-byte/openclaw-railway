@@ -26,7 +26,9 @@
   OPENCLAW_STATE_DIR = "/tmp/openclaw"
   OPENCLAW_WORKSPACE_DIR = "/tmp/workspace"
   # 修复权限问题
-  HOME = "/tmp"
+  HOME = "/tmp/openclaw"
   USER = "root"
   # 确保服务监听在所有接口
   BIND_ADDRESS = "0.0.0.0"
+  # 确保配置文件使用正确的端口
+  OPENCLAW_CONFIG_PATH = "/tmp/openclaw/openclaw.json"

@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# 确保OpenClaw配置文件存在并包含正确的端口设置
+
+echo "正在检查OpenClaw配置文件..."
+
+# 确保目录存在
+mkdir -p /tmp/openclaw
+mkdir -p /data/.openclaw
+
+# 检查配置文件是否存在
+CONFIG_PATH="/tmp/openclaw/openclaw.json"
+if [ ! -f "$CONFIG_PATH" ]; then
+    echo "创建新的配置文件：$CONFIG_PATH"
+    cat > "$CONFIG_PATH" << 'EOF'
+{
+  "gateway": {
+    "mode": "local",
+    "port": 8080,
+    "bind": "lan"
+  },
+  "logging": {
+    "level": "info"
+  }
+}
+EOF
+    chmod 600 "$CONFIG_PATH"
+    echo "配置文件已创建"
+else
+    echo "配置文件已存在：$CONFIG_PATH"
+    # 检查配置文件是否包含端口设置
+    if ! grep -q '"port"' "$CONFIG_PATH"; then
+        echo "添加端口设置到配置文件"
+        # 使用jq来修改JSON文件（如果可用）
+        if command -v jq &> /dev/null; then
+            jq '.gateway.port = 8080' "$CONFIG_PATH" > "$CONFIG_PATH.tmp" && mv "$CONFIG_PATH.tmp" "$CONFIG_PATH"
+        else
+            # 如果没有jq，使用sed
+            sed -i 's/{/{\n  "gateway": {\n    "mode": "local",\n    "port": 8080,\n    "bind": "lan"\n  },/' "$CONFIG_PATH"
+        fi
+    else
+        echo "端口设置已存在"
+    fi
+fi
+
+# 确保配置文件权限正确
+chmod 600 "$CONFIG_PATH"
+
+echo "配置文件检查完成"
