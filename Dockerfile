@@ -59,4 +59,4 @@ USER root
 
 # Railway health check endpoint - use root path for compatibility
 # 在容器启动时重新生成配置，注入运行时环境变量
-CMD bash -c 'echo "=== 生成配置 ==="; /app/ensure-config.sh; echo "=== 启动OpenClaw ==="; exec node openclaw.mjs gateway --allow-unconfigured --auth token --bind lan --port 8080 --verbose'
+CMD bash -c 'echo "=== 环境变量 ==="; env | sort; echo "=== 生成配置前 ==="; cat /tmp/openclaw/openclaw.json 2>/dev/null || echo "配置文件不存在"; /app/ensure-config.sh; echo "=== 生成配置后 ==="; cat /tmp/openclaw/openclaw.json; echo "=== 启动OpenClaw ==="; exec node openclaw.mjs gateway --allow-unconfigured --auth token --bind lan --port 8080 --verbose'
