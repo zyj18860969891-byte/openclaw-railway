@@ -8,6 +8,15 @@ echo "正在检查OpenClaw配置文件..."
 mkdir -p /tmp/openclaw
 mkdir -p /data/.openclaw
 
+# 获取Railway分配的端口
+if [ -n "$PORT" ]; then
+    GATEWAY_PORT=$PORT
+    echo "使用Railway分配的端口: $GATEWAY_PORT"
+else
+    GATEWAY_PORT=8080
+    echo "使用默认端口: $GATEWAY_PORT"
+fi
+
 # 检查配置文件是否存在
 CONFIG_PATH="/tmp/openclaw/openclaw.json"
 if [ ! -f "$CONFIG_PATH" ]; then
@@ -33,10 +42,10 @@ else
         echo "添加端口设置到配置文件"
         # 使用jq来修改JSON文件（如果可用）
         if command -v jq &> /dev/null; then
-            jq '.gateway.port = 8080' "$CONFIG_PATH" > "$CONFIG_PATH.tmp" && mv "$CONFIG_PATH.tmp" "$CONFIG_PATH"
+            jq ".gateway.port = $GATEWAY_PORT" "$CONFIG_PATH" > "$CONFIG_PATH.tmp" && mv "$CONFIG_PATH.tmp" "$CONFIG_PATH"
         else
             # 如果没有jq，使用sed
-            sed -i 's/{/{\n  "gateway": {\n    "mode": "local",\n    "port": 8080,\n    "bind": "lan"\n  },/' "$CONFIG_PATH"
+            sed -i "s/\"port\": 8080/\"port\": $GATEWAY_PORT/" "$CONFIG_PATH"
         fi
     else
         echo "端口设置已存在"
