@@ -21,11 +21,11 @@ fi
 CONFIG_PATH="/tmp/openclaw/openclaw.json"
 if [ ! -f "$CONFIG_PATH" ]; then
     echo "创建新的配置文件：$CONFIG_PATH"
-    cat > "$CONFIG_PATH" << 'EOF'
+    cat > "$CONFIG_PATH" << EOF
 {
   "gateway": {
     "mode": "local",
-    "port": 8080,
+    "port": $GATEWAY_PORT,
     "bind": "lan"
   },
   "logging": {
@@ -45,7 +45,8 @@ else
             jq ".gateway.port = $GATEWAY_PORT" "$CONFIG_PATH" > "$CONFIG_PATH.tmp" && mv "$CONFIG_PATH.tmp" "$CONFIG_PATH"
         else
             # 如果没有jq，使用sed
-            sed -i "s/\"port\": 8080/\"port\": $GATEWAY_PORT/" "$CONFIG_PATH"
+            sed -i "s/\"port\": [0-9]*/\"port\": $GATEWAY_PORT/" "$CONFIG_PATH" || \
+            sed -i "s/\"port\": .*/\"port\": $GATEWAY_PORT/" "$CONFIG_PATH"
         fi
     else
         echo "端口设置已存在"
