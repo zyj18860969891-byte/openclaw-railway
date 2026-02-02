@@ -37,6 +37,12 @@ if [ ! -f "$CONFIG_PATH" ]; then
     },
     "trustedProxies": ["100.64.0.0/10"]
   },
+  "controlUi": {
+    "enabled": true
+  },
+  "canvasHost": {
+    "enabled": true
+  },
   "sandbox": {
     "mode": "non-main",
     "stateDir": "/tmp/openclaw",
