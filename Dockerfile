@@ -58,5 +58,5 @@ RUN chown -R node:node /app/dist
 USER root
 
 # Railway health check endpoint - use root path for compatibility
-# 添加调试：打印配置和环境变量
-CMD bash -c 'echo "=== Debug Info ==="; echo "Environment tokens:"; env | grep -i token; echo "Config file:"; cat /tmp/openclaw/openclaw.json; echo "Starting OpenClaw..."; exec node openclaw.mjs gateway --allow-unconfigured --auth token --token aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A --bind lan --port 8080 --verbose'
+# 在容器启动时重新生成配置，注入运行时环境变量
+CMD bash -c 'echo "=== 生成配置 ==="; /app/ensure-config.sh; echo "=== 启动OpenClaw ==="; exec node openclaw.mjs gateway --allow-unconfigured --auth token --bind lan --port 8080 --verbose'
