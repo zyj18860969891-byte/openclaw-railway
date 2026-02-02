@@ -62,21 +62,22 @@ else
     echo "当前配置文件内容："
     cat "$CONFIG_PATH"
     echo ""
-    # 检查配置文件是否包含端口设置
-    if ! grep -q '"port"' "$CONFIG_PATH"; then
-        echo "添加端口设置到配置文件"
-        # 使用jq来修改JSON文件（如果可用）
-        if command -v jq &> /dev/null; then
-            jq ".gateway.port = $GATEWAY_PORT" "$CONFIG_PATH" > "$CONFIG_PATH.tmp" && mv "$CONFIG_PATH.tmp" "$CONFIG_PATH"
-            echo "使用jq修改了端口为: $GATEWAY_PORT"
-        else
-            # 如果没有jq，使用sed
+    # 更新token和端口设置
+    echo "更新配置文件中的token和端口设置..."
+    # 使用jq来修改JSON文件（如果可用）
+    if command -v jq &> /dev/null; then
+        jq ".gateway.port = $GATEWAY_PORT | .gateway.auth.token = \"$TOKEN\"" "$CONFIG_PATH" > "$CONFIG_PATH.tmp" && mv "$CONFIG_PATH.tmp" "$CONFIG_PATH"
+        echo "使用jq更新了端口为: $GATEWAY_PORT 和token"
+    else
+        # 如果没有jq，使用sed更新端口
+        if ! grep -q '"port"' "$CONFIG_PATH"; then
             sed -i "s/\"port\": [0-9]*/\"port\": $GATEWAY_PORT/" "$CONFIG_PATH" || \
             sed -i "s/\"port\": .*/\"port\": $GATEWAY_PORT/" "$CONFIG_PATH"
-            echo "使用sed修改了端口为: $GATEWAY_PORT"
+            echo "使用sed添加/修改了端口为: $GATEWAY_PORT"
         fi
-    else
-        echo "端口设置已存在"
+        # 使用sed更新token (匹配 "token": "..." 格式)
+        sed -i "s/\"token\": \"[^\"]*\"/\"token\": \"$TOKEN\"/" "$CONFIG_PATH"
+        echo "使用sed更新了token"
     fi
     # 显示修改后的配置文件内容
     echo "修改后的配置文件内容："
