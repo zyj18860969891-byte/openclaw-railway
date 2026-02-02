@@ -29,6 +29,4 @@
   BIND_ADDRESS = "0.0.0.0"
   # 确保配置文件使用正确的端口
   OPENCLAW_CONFIG_PATH = "/tmp/openclaw/openclaw.json"
-
-[httpService]
-  internalPort = 18789
+  # 不设置httpService，让Railway自动检测端口
