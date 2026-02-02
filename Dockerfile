@@ -36,9 +36,8 @@ RUN mkdir -p /tmp/openclaw && chown -R root:root /tmp/openclaw
 RUN mkdir -p /tmp/workspace && chown -R root:root /tmp/workspace
 RUN mkdir -p /data/.openclaw && chown -R root:root /data/.openclaw
 
-# Fix plugin manifest issues and generate secure token
+# Fix plugin manifest issues
 RUN chmod +x /app/fix-plugins.sh && /app/fix-plugins.sh
-RUN chmod +x /app/generate-token.sh && /app/generate-token.sh
 RUN chmod +x /app/ensure-config.sh && /app/ensure-config.sh
 RUN chmod +x /app/healthcheck.sh
 
