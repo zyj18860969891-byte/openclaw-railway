@@ -8,9 +8,9 @@ echo "正在检查OpenClaw配置文件..."
 mkdir -p /tmp/openclaw
 mkdir -p /data/.openclaw
 
-# 使用OpenClaw的端口
-GATEWAY_PORT=8080
-echo "使用端口: $GATEWAY_PORT"
+# 使用Railway动态端口或OpenClaw默认端口
+GATEWAY_PORT=${PORT:-18789}
+echo "使用端口: $GATEWAY_PORT (来自环境变量 PORT: ${PORT:-"未设置"})"
 
 # 使用正确的token环境变量
 if [ -n "$OPENCLAW_GATEWAY_TOKEN" ]; then
