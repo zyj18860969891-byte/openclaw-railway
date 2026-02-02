@@ -11,11 +11,13 @@ mkdir -p /data/.openclaw
 # 获取Railway分配的端口
 if [ -n "$PORT" ]; then
     GATEWAY_PORT=$PORT
-    echo "使用Railway分配的端口: $GATEWAY_PORT"
+    echo "Railway分配的端口: $PORT"
 else
     GATEWAY_PORT=8080
-    echo "使用默认端口: $GATEWAY_PORT"
+    echo "使用默认端口: 8080"
 fi
+
+echo "最终使用的端口: $GATEWAY_PORT"
 
 # 检查配置文件是否存在
 CONFIG_PATH="/tmp/openclaw/openclaw.json"
@@ -34,23 +36,33 @@ if [ ! -f "$CONFIG_PATH" ]; then
 }
 EOF
     chmod 600 "$CONFIG_PATH"
-    echo "配置文件已创建"
+    echo "配置文件已创建，端口设置为: $GATEWAY_PORT"
 else
     echo "配置文件已存在：$CONFIG_PATH"
+    # 显示当前配置文件内容
+    echo "当前配置文件内容："
+    cat "$CONFIG_PATH"
+    echo ""
     # 检查配置文件是否包含端口设置
     if ! grep -q '"port"' "$CONFIG_PATH"; then
         echo "添加端口设置到配置文件"
         # 使用jq来修改JSON文件（如果可用）
         if command -v jq &> /dev/null; then
             jq ".gateway.port = $GATEWAY_PORT" "$CONFIG_PATH" > "$CONFIG_PATH.tmp" && mv "$CONFIG_PATH.tmp" "$CONFIG_PATH"
+            echo "使用jq修改了端口为: $GATEWAY_PORT"
         else
             # 如果没有jq，使用sed
             sed -i "s/\"port\": [0-9]*/\"port\": $GATEWAY_PORT/" "$CONFIG_PATH" || \
             sed -i "s/\"port\": .*/\"port\": $GATEWAY_PORT/" "$CONFIG_PATH"
+            echo "使用sed修改了端口为: $GATEWAY_PORT"
         fi
     else
         echo "端口设置已存在"
     fi
+    # 显示修改后的配置文件内容
+    echo "修改后的配置文件内容："
+    cat "$CONFIG_PATH"
+    echo ""
 fi
 
 # 确保配置文件权限正确

@@ -4,7 +4,7 @@
   builder = "dockerfile"
 
 [deploy]
-  startCommand = "node dist/index.js gateway --allow-unconfigured --auth token --token aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A --bind lan --port $PORT --verbose"
+  startCommand = "node openclaw.mjs gateway --allow-unconfigured --auth token --token aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A --bind lan --port ${PORT} --verbose"
   restartPolicyType = "always"
   restartPolicyMaxRetries = 10
 
