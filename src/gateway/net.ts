@@ -51,7 +51,39 @@ function parseRealIp(realIp?: string): string | undefined {
 export function isTrustedProxyAddress(ip: string | undefined, trustedProxies?: string[]): boolean {
   const normalized = normalizeIp(ip);
   if (!normalized || !trustedProxies || trustedProxies.length === 0) return false;
-  return trustedProxies.some((proxy) => normalizeIp(proxy) === normalized);
+  return trustedProxies.some((proxy) => {
+    // Check if proxy is a CIDR range
+    if (proxy.includes('/')) {
+      return ipInCidrRange(normalized, proxy);
+    }
+    // Exact IP match
+    return normalizeIp(proxy) === normalized;
+  });
+}
+
+function ipInCidrRange(ip: string, cidr: string): boolean {
+  try {
+    const [range, prefixStr] = cidr.split('/');
+    const prefix = parseInt(prefixStr, 10);
+    if (isNaN(prefix) || prefix < 0 || prefix > 32) return false;
+
+    const ipBigInt = ipToBigInt(ip);
+    const rangeBigInt = ipToBigInt(range);
+    const mask = prefix === 0 ? 0n : (1n << BigInt(32 - prefix)) - 1n;
+
+    return (ipBigInt & ~mask) === (rangeBigInt & ~mask);
+  } catch {
+    return false;
+  }
+}
+
+function ipToBigInt(ip: string): bigint {
+  const parts = ip.split('.').map(Number);
+  if (parts.length !== 4) return 0n;
+  return (BigInt(parts[0]) << 24n) |
+         (BigInt(parts[1]) << 16n) |
+         (BigInt(parts[2]) << 8n) |
+         BigInt(parts[3]);
 }
 
 export function resolveGatewayClientIp(params: {
