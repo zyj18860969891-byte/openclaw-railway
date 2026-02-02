@@ -4,7 +4,7 @@
   builder = "dockerfile"
 
 [deploy]
-  startCommand = "bash -c 'export OPENCLAW_GATEWAY_TOKEN=aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A; /app/ensure-config.sh; exec node openclaw.mjs gateway --allow-unconfigured --auth token --token aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A --bind lan --port 8080 --verbose'"
+  startCommand = "bash -c 'export OPENCLAW_GATEWAY_TOKEN=aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A; /app/ensure-config.sh; exec node openclaw.mjs gateway --allow-unconfigured --bind lan --port 8080 --verbose'"
   restartPolicyType = "always"
   restartPolicyMaxRetries = 10
 
