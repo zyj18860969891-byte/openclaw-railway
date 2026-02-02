@@ -45,7 +45,8 @@ cat <<EOF > "$CONFIG_PATH"
   },
   "controlUi": {
     "enabled": true,
-    "allowInsecureAuth": true
+    "allowInsecureAuth": true,
+    "dangerouslyDisableDeviceAuth": true
   },
   "canvasHost": {
     "enabled": true
