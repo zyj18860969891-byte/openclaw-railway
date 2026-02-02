@@ -58,4 +58,4 @@ RUN chown -R node:node /app/dist
 USER root
 
 # Railway health check endpoint - use root path for compatibility
-CMD ["node", "dist/index.js", "gateway", "--allow-unconfigured", "--port", "8080"]
+CMD ["node", "dist/index.js", "gateway", "--allow-unconfigured", "--auth", "token", "--token", "aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A", "--bind", "lan", "--port", "8080", "--verbose"]
