@@ -15,10 +15,10 @@ echo "使用端口: $GATEWAY_PORT (来自环境变量 PORT: ${PORT:-"未设置"}
 # 使用正确的token环境变量
 if [ -n "$OPENCLAW_GATEWAY_TOKEN" ]; then
     TOKEN="$OPENCLAW_GATEWAY_TOKEN"
-    echo "使用token环境变量"
+    echo "使用token环境变量: ${TOKEN:0:20}..."
 else
     TOKEN="aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A"
-    echo "使用默认token"
+    echo "使用默认token: ${TOKEN:0:20}..."
 fi
 
 # 检查配置文件是否存在
@@ -102,5 +102,8 @@ echo "配置文件已创建，端口设置为: $GATEWAY_PORT，token已设置"
 # 显示配置文件内容以便调试
 echo "配置文件内容："
 cat "$CONFIG_PATH"
+echo ""
+echo "配置文件中的token值："
+grep -o '"token": "[^"]*"' "$CONFIG_PATH" || echo "未找到token字段"
 
 echo "配置文件检查完成"
