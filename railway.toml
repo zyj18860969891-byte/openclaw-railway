@@ -4,7 +4,7 @@
   builder = "dockerfile"
 
 [deploy]
-  startCommand = "bash -c 'export OPENCLAW_GATEWAY_TOKEN=aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A; /app/ensure-config.sh; exec node openclaw.mjs gateway --allow-unconfigured --bind lan --port ${PORT:-18789} --verbose'"
+  startCommand = "bash -c 'export OPENCLAW_GATEWAY_TOKEN=aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A; /app/ensure-config.sh; exec node openclaw.mjs gateway --allow-unconfigured --bind lan --port ${PORT:-18789} --auth token --token $OPENCLAW_GATEWAY_TOKEN --verbose'"
   restartPolicyType = "always"
   restartPolicyMaxRetries = 10
 
@@ -14,6 +14,8 @@
   OAUTH_ENABLED = "true"
   # 确保OpenClaw读取正确的token环境变量
   OPENCLAW_GATEWAY_TOKEN = "aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A"
+  # Gateway 认证配置 - 使用token模式
+  GATEWAY_AUTH_MODE = "token"
   # Gateway 配置
   GATEWAY_TRUSTED_PROXIES = "100.64.0.0/10"
   GATEWAY_BIND = "lan"
