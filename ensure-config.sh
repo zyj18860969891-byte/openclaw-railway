@@ -21,52 +21,17 @@ else
     echo "使用默认token: ${TOKEN:0:20}..."
 fi
 
-# 检查配置文件是否存在
+# 配置文件路径
 CONFIG_PATH="/tmp/openclaw/openclaw.json"
-if [ ! -f "$CONFIG_PATH" ]; then
-    echo "创建新的配置文件：$CONFIG_PATH"
-    cat > "$CONFIG_PATH" << EOF
-{
-  "gateway": {
-    "mode": "local",
-    "port": $GATEWAY_PORT,
-    "bind": "lan",
-    "auth": {
-      "mode": "token",
-      "token": "$TOKEN"
-    },
-    "trustedProxies": ["100.64.0.0/10"]
-  },
-  "controlUi": {
-    "enabled": true,
-    "allowInsecureAuth": true
-  },
-  "canvasHost": {
-    "enabled": true
-  },
-  "sandbox": {
-    "mode": "non-main",
-    "stateDir": "/tmp/openclaw",
-    "workspaceDir": "/tmp/workspace"
-  },
-  "logging": {
-    "level": "info",
-    "format": "json"
-  }
-}
-EOF
-    chmod 600 "$CONFIG_PATH"
-    echo "配置文件已创建，端口设置为: $GATEWAY_PORT"
-else
-    echo "配置文件已存在：$CONFIG_PATH"
-    # 删除旧配置文件，重新创建以确保JSON结构正确
-    echo "删除旧配置文件并重新创建..."
-    rm -f "$CONFIG_PATH"
-fi
 
-# 无论配置文件是否存在，现在都重新创建
+# 总是重新创建配置文件以确保JSON结构正确
+echo "删除旧配置文件（如果存在）..."
+rm -f "$CONFIG_PATH"
+
 echo "创建新的配置文件：$CONFIG_PATH"
-cat > "$CONFIG_PATH" << EOF
+
+# 使用正确的JSON结构创建配置文件
+cat <<EOF > "$CONFIG_PATH"
 {
   "gateway": {
     "mode": "local",
@@ -96,8 +61,20 @@ cat > "$CONFIG_PATH" << EOF
   }
 }
 EOF
+
 chmod 600 "$CONFIG_PATH"
 echo "配置文件已创建，端口设置为: $GATEWAY_PORT，token已设置"
+
+# 验证JSON格式
+if command -v python3 &> /dev/null; then
+    echo "验证JSON格式..."
+    python3 -m json.tool "$CONFIG_PATH" > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo "✅ JSON格式正确"
+    else
+        echo "❌ JSON格式错误！"
+    fi
+fi
 
 # 显示配置文件内容以便调试
 echo "配置文件内容："
