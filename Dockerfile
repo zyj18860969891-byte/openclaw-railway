@@ -17,7 +17,7 @@ EXPOSE 8080
 # FORCED REBUILD MARKER - Railway must rebuild now
 
 # Build argument to force cache invalidation
-ARG CACHE_BUST=2026-02-03-FINAL-FORCE-REBUILD-THIS-WILL-WORK
+ARG CACHE_BUST=2026-02-03-ABSOLUTE-FORCE-REBUILD-NOW-OR-NEVER
 
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
 RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
@@ -29,6 +29,11 @@ RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
 
 # Copy all files first (simplified approach)
 COPY . .
+
+# CRITICAL: Force rebuild and template check
+RUN echo "=== CRITICAL REBUILD CHECK AT $(date) ===" && \
+    echo "=== THIS MUST BE VISIBLE ===" && \
+    ls -la /app/ | head -10
 
 # Ensure template files are present (workaround for .dockerignore issues)
 RUN echo "=== FORCING REBUILD AT $(date) ===" && \
