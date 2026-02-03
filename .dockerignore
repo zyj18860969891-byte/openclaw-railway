@@ -45,9 +45,11 @@ RAILWAY_*.md
 VOLUME_SETUP_GUIDE.md
 
 # Documentation - exclude most docs but keep templates needed at runtime
-docs/**
-!docs/reference/
-!docs/reference/templates/
+docs/*
+docs/*
+!docs/reference
+!docs/reference/templates
+!docs/reference/templates/*
 
 # Test files
 test/
