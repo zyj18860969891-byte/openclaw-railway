@@ -53,9 +53,11 @@ echo "使用模型: $MODEL_NAME"
 # 使用正确的JSON结构创建配置文件
 cat <<EOF > "$CONFIG_PATH"
 {
-  "agent": {
-    "model": "$MODEL_NAME",
+  "agents": {
     "defaults": {
+      "model": {
+        "primary": "$MODEL_NAME"
+      },
       "workspace": "/tmp/openclaw",
       "sandbox": {
         "mode": "non-main"
