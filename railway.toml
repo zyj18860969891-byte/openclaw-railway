@@ -4,7 +4,7 @@
   builder = "dockerfile"
 
 [deploy]
-  startCommand = "bash -c 'source /app/ensure-config.sh && export OPENCLAW_STATE_DIR=/tmp/openclaw && export OPENCLAW_CONFIG_PATH=/tmp/openclaw/openclaw.json && exec node openclaw.mjs gateway --allow-unconfigured --bind lan --port ${PORT:-18789} --auth token --token $OPENCLAW_GATEWAY_TOKEN --verbose'"
+  startCommand = "bash -c 'source /app/ensure-config.sh && export OPENCLAW_STATE_DIR=/tmp/openclaw && export OPENCLAW_CONFIG_PATH=/tmp/openclaw/openclaw.json && echo \"=== 启动前检查 ===\" && ls -la /app/docs/reference/templates/ && exec node openclaw.mjs gateway --allow-unconfigured --bind lan --port ${PORT:-18789} --auth token --token $OPENCLAW_GATEWAY_TOKEN --verbose'"
   restartPolicyType = "always"
   restartPolicyMaxRetries = 10
 

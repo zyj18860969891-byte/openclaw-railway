@@ -30,10 +30,33 @@ RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
 # Copy all files first (simplified approach)
 COPY . .
 
+# Explicitly copy template files to ensure they're available
+RUN echo "=== COPYING TEMPLATE FILES ===" && \
+    mkdir -p /app/docs/reference/templates && \
+    cp -r docs/reference/templates/* /app/docs/reference/templates/ && \
+    echo "=== TEMPLATE FILES COPIED ===" && \
+    ls -la /app/docs/reference/templates/ && \
+    echo "=== VERIFYING IDENTITY.md ===" && \
+    if [ -f /app/docs/reference/templates/IDENTITY.md ]; then \
+        echo "✅ IDENTITY.md found with $(wc -l < /app/docs/reference/templates/IDENTITY.md) lines"; \
+        head -5 /app/docs/reference/templates/IDENTITY.md; \
+    else \
+        echo "❌ IDENTITY.md still missing!"; \
+        exit 1; \
+    fi
+
 # CRITICAL: Force rebuild and template check
 RUN echo "=== CRITICAL REBUILD CHECK AT $(date) ===" && \
     echo "=== THIS MUST BE VISIBLE ===" && \
-    ls -la /app/ | head -10
+    ls -la /app/ | head -10 && \
+    echo "=== CHECKING FOR TEMPLATE FILES ===" && \
+    if [ -f "/app/docs/reference/templates/IDENTITY.md" ]; then \
+        echo "✅ Template files found"; \
+    else \
+        echo "❌ Template files missing, attempting to copy..."; \
+        mkdir -p /app/docs/reference/templates && \
+        cp -r /app/docs/reference/templates/* /app/docs/reference/templates/ 2>/dev/null || echo "Failed to copy templates"; \
+    fi
 
 # Ensure template files are present (workaround for .dockerignore issues)
 RUN echo "=== FORCING REBUILD AT $(date) ===" && \
@@ -45,7 +68,15 @@ RUN echo "=== FORCING REBUILD AT $(date) ===" && \
         cp -r docs/reference/templates/* /app/docs/reference/templates/ 2>/dev/null || true; \
     fi && \
     echo "After copy attempt:" && \
-    ls -la /app/docs/reference/templates/ | head -20
+    ls -la /app/docs/reference/templates/ | head -20 && \
+    echo "=== VERIFYING IDENTITY.md ===" && \
+    if [ -f /app/docs/reference/templates/IDENTITY.md ]; then \
+        echo "✅ IDENTITY.md found with $(wc -l < /app/docs/reference/templates/IDENTITY.md) lines"; \
+        head -5 /app/docs/reference/templates/IDENTITY.md; \
+    else \
+        echo "❌ IDENTITY.md still missing!"; \
+        exit 1; \
+    fi
 
 # Install dependencies
 RUN pnpm install
