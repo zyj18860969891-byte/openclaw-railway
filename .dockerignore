@@ -44,7 +44,7 @@ DEPLOYMENT_*.md
 RAILWAY_*.md
 VOLUME_SETUP_GUIDE.md
 
-# Documentation - exclude most docs but keep templates needed at runtime
+# Documentation - temporarily include all docs for debugging
 docs/**
 !docs/reference/
 !docs/reference/templates/
