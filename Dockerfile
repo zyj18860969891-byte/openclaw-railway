@@ -11,6 +11,9 @@ WORKDIR /app
 # Expose port 8080 for Railway
 EXPOSE 8080
 
+# Build argument to force cache invalidation
+ARG CACHE_BUST=2026-02-03
+
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
 RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
       apt-get update && \
