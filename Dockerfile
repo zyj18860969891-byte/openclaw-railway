@@ -30,20 +30,9 @@ RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
 # Copy all files first (simplified approach)
 COPY . .
 
-# Copy template files using a more direct approach
-RUN echo "=== CHECKING TEMPLATE FILES ===" && \
-    ls -la docs/reference/templates/ && \
-    echo "=== COPYING TEMPLATE FILES ===" && \
-    mkdir -p /app/docs/reference/templates && \
-    cp -v docs/reference/templates/IDENTITY.md /app/docs/reference/templates/ || echo "Failed to copy IDENTITY.md" && \
-    echo "=== VERIFYING IDENTITY.md ===" && \
-    if [ -f /app/docs/reference/templates/IDENTITY.md ]; then \
-        echo "✅ IDENTITY.md found with $(wc -l < /app/docs/reference/templates/IDENTITY.md) lines"; \
-        head -5 /app/docs/reference/templates/IDENTITY.md; \
-    else \
-        echo "❌ IDENTITY.md missing!"; \
-        exit 1; \
-    fi
+# Copy template files using a dedicated script
+COPY copy-templates.sh /app/
+RUN chmod +x /app/copy-templates.sh && /app/copy-templates.sh
 
 # CRITICAL: Force rebuild and template check
 RUN echo "=== CRITICAL REBUILD CHECK AT $(date) ===" && \
