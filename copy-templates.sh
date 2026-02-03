@@ -5,28 +5,68 @@ echo "=== Copying template files ==="
 # Create directory if it doesn't exist
 mkdir -p /app/docs/reference/templates
 
-# Check if source files exist
-if [ -f "docs/reference/templates/IDENTITY.md" ]; then
-    echo "Source IDENTITY.md found"
-    cp -v docs/reference/templates/IDENTITY.md /app/docs/reference/templates/
-else
-    echo "Source IDENTITY.md not found, creating a minimal one"
-    cat > /app/docs/reference/templates/IDENTITY.md << 'EOF'
+# Copy all template files
+echo "Copying all template files..."
+cp -v docs/reference/templates/*.md /app/docs/reference/templates/ 2>/dev/null || echo "Some files may not exist"
+
+# Check if critical files exist and create them if missing
+CRITICAL_FILES=("IDENTITY.md" "USER.md" "AGENTS.md" "TOOLS.md" "SOUL.md")
+for file in "${CRITICAL_FILES[@]}"; do
+    if [ ! -f "/app/docs/reference/templates/$file" ]; then
+        echo "Creating minimal $file..."
+        case $file in
+            "IDENTITY.md")
+                cat > /app/docs/reference/templates/$file << 'EOF'
 - Name: Default Agent
 - Creature: protocol droid
 - Vibe: helpful
 - Emoji: 🤖
 EOF
-fi
+                ;;
+            "USER.md")
+                cat > /app/docs/reference/templates/$file << 'EOF'
+- Name: User
+- Type: human
+- Description: The end user of the system
+EOF
+                ;;
+            "AGENTS.md")
+                cat > /app/docs/reference/templates/$file << 'EOF'
+# Agents Template
 
-# Verify the file was copied
-echo "=== Verifying IDENTITY.md ==="
-if [ -f "/app/docs/reference/templates/IDENTITY.md" ]; then
-    echo "✅ IDENTITY.md found with $(wc -l < /app/docs/reference/templates/IDENTITY.md) lines"
-    head -5 /app/docs/reference/templates/IDENTITY.md
-else
-    echo "❌ IDENTITY.md missing!"
-    exit 1
-fi
+This file defines the agent configuration and capabilities.
+EOF
+                ;;
+            "TOOLS.md")
+                cat > /app/docs/reference/templates/$file << 'EOF'
+# Tools Template
+
+This file defines the available tools and their usage.
+EOF
+                ;;
+            "SOUL.md")
+                cat > /app/docs/reference/templates/$file << 'EOF'
+# Soul Template
+
+This file defines the agent's personality and characteristics.
+EOF
+                ;;
+        esac
+    fi
+done
+
+# Verify the files were copied
+echo "=== Verifying template files ==="
+ls -la /app/docs/reference/templates/
+
+# Check for critical files
+for file in "${CRITICAL_FILES[@]}"; do
+    if [ -f "/app/docs/reference/templates/$file" ]; then
+        echo "✅ $file found with $(wc -l < /app/docs/reference/templates/$file) lines"
+    else
+        echo "❌ $file missing!"
+        exit 1
+    fi
+done
 
 echo "=== Template files copied successfully ==="
