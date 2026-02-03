@@ -1,6 +1,6 @@
 {
   "agent": {
-    "model": "anthropic/claude-opus-4-5",
+    "model": "${MODEL_NAME:-openai/gpt-4o}",
     "defaults": {
       "workspace": "~/.openclaw",
       "sandbox": {
