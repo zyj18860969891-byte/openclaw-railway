@@ -10,9 +10,10 @@ WORKDIR /app
 
 # Expose port 8080 for Railway
 EXPOSE 8080
+# FORCED REBUILD MARKER - Railway must rebuild now
 
 # Build argument to force cache invalidation
-ARG CACHE_BUST=2026-02-03-REBUILD-NOW
+ARG CACHE_BUST=2026-02-03-FINAL-FORCE-REBUILD-THIS-WILL-WORK
 
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
 RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
@@ -26,7 +27,8 @@ RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
 COPY . .
 
 # Ensure template files are present (workaround for .dockerignore issues)
-RUN echo "=== Checking template files ===" && \
+RUN echo "=== FORCING REBUILD AT $(date) ===" && \
+    echo "=== CHECKING TEMPLATE FILES ===" && \
     mkdir -p /app/docs/reference/templates && \
     ls -la /app/docs/reference/templates/ 2>&1 || echo "Templates directory not found" && \
     if [ ! -f /app/docs/reference/templates/IDENTITY.md ]; then \
