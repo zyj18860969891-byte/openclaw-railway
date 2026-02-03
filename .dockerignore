@@ -46,13 +46,7 @@ VOLUME_SETUP_GUIDE.md
 
 # Documentation - exclude most docs but keep templates needed at runtime
 docs/**
-!docs/reference/
-!docs/reference/**
-!docs/reference/templates/
 !docs/reference/templates/**
-images/
-references/
-skills/
 
 # Test files
 test/
