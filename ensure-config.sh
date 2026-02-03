@@ -82,13 +82,6 @@ cat <<EOF > "$CONFIG_PATH"
   "canvasHost": {
     "enabled": true
   },
-  "agents": {
-    "defaults": {
-      "sandbox": {
-        "mode": "non-main"
-      }
-    }
-  },
   "logging": {
     "level": "info",
     "consoleStyle": "json"

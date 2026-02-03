@@ -44,8 +44,11 @@ DEPLOYMENT_*.md
 RAILWAY_*.md
 VOLUME_SETUP_GUIDE.md
 
-# Documentation
-docs/
+# Documentation - exclude most docs but keep templates needed at runtime
+docs/*
+!docs/reference/
+!docs/reference/templates/
+!docs/reference/templates/*
 images/
 references/
 skills/
