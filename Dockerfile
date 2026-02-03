@@ -30,18 +30,15 @@ RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
 # Copy all files first (simplified approach)
 COPY . .
 
-# Explicitly copy template files to ensure they're available
-RUN echo "=== COPYING TEMPLATE FILES ===" && \
-    mkdir -p /app/docs/reference/templates && \
-    cp -r docs/reference/templates/* /app/docs/reference/templates/ && \
-    echo "=== TEMPLATE FILES COPIED ===" && \
+# Verify template files are available after COPY
+RUN echo "=== VERIFYING TEMPLATE FILES ===" && \
     ls -la /app/docs/reference/templates/ && \
     echo "=== VERIFYING IDENTITY.md ===" && \
     if [ -f /app/docs/reference/templates/IDENTITY.md ]; then \
         echo "✅ IDENTITY.md found with $(wc -l < /app/docs/reference/templates/IDENTITY.md) lines"; \
         head -5 /app/docs/reference/templates/IDENTITY.md; \
     else \
-        echo "❌ IDENTITY.md still missing!"; \
+        echo "❌ IDENTITY.md missing!"; \
         exit 1; \
     fi
 
