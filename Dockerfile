@@ -35,7 +35,7 @@ RUN echo "=== CHECKING TEMPLATE FILES ===" && \
     ls -la docs/reference/templates/ && \
     echo "=== COPYING TEMPLATE FILES ===" && \
     mkdir -p /app/docs/reference/templates && \
-    cp -v docs/reference/templates/IDENTITY.md /app/docs/reference/templates/ 2>/dev/null || echo "Failed to copy IDENTITY.md" && \
+    cp -v docs/reference/templates/IDENTITY.md /app/docs/reference/templates/ || echo "Failed to copy IDENTITY.md" && \
     echo "=== VERIFYING IDENTITY.md ===" && \
     if [ -f /app/docs/reference/templates/IDENTITY.md ]; then \
         echo "✅ IDENTITY.md found with $(wc -l < /app/docs/reference/templates/IDENTITY.md) lines"; \

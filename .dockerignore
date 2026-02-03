@@ -45,10 +45,10 @@ RAILWAY_*.md
 VOLUME_SETUP_GUIDE.md
 
 # Documentation - temporarily include all docs for debugging
-docs/**
-!docs/reference/
-!docs/reference/templates/
-!docs/reference/templates/**
+# docs/**
+# !docs/reference/
+# !docs/reference/templates/
+# !docs/reference/templates/**
 
 # Test files
 test/
