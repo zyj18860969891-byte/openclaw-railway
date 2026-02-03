@@ -22,6 +22,14 @@ RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
 # Copy all files first (simplified approach)
 COPY . .
 
+# Ensure template files are present (workaround for .dockerignore issues)
+RUN mkdir -p /app/docs/reference/templates && \
+    if [ ! -f /app/docs/reference/templates/IDENTITY.md ]; then \
+        echo "Template files missing, copying from source..." && \
+        cp -r docs/reference/templates/* /app/docs/reference/templates/ 2>/dev/null || true; \
+    fi && \
+    ls -la /app/docs/reference/templates/ | head -20
+
 # Install dependencies
 RUN pnpm install
 
