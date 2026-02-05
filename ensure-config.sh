@@ -47,7 +47,7 @@ rm -f "$CONFIG_PATH"
 echo "创建新的配置文件：$CONFIG_PATH"
 
 # 从环境变量读取模型名称，如果没有设置则使用默认值
-MODEL_NAME=${MODEL_NAME:-"anthropic/claude-opus-4.5"}
+MODEL_NAME=${MODEL_NAME:-"stepfun/step-3.5-flash:free"}
 echo "使用模型: $MODEL_NAME"
 
 # 使用正确的JSON结构创建配置文件
