@@ -7,7 +7,6 @@
  */
 
 import type { OpenClawConfig } from "./types.js";
-import { applyConfigEnv } from "./env.js";
 
 // Channel environment variable mappings
 export const CHANNEL_ENV_VARS: Record<string, string> = {
@@ -45,7 +44,7 @@ export function applyEnvPriorityToChannels(config: OpenClawConfig, env: NodeJS.P
       // Override config file setting with environment variable
       if (configWithPriority.channels[channel]?.enabled !== shouldBeEnabled) {
         configWithPriority.channels[channel] = {
-          ...configWithPriority.channels[channel],
+          ...(configWithPriority.channels[channel] || {}),
           enabled: shouldBeEnabled,
         };
       }

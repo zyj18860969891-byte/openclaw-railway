@@ -20,6 +20,7 @@ import {
   applyMessageDefaults,
 } from "./defaults.js";
 import { applyEnvPriorityIfNeeded } from "./env-priority.js";
+import type { OpenClawConfig } from "./types.js";
   applyModelDefaults,
   applySessionDefaults,
   applyTalkApiKey,
@@ -260,15 +261,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         deps.logger.warn(`Config warnings:\\n${details}`);
       }
       warnIfConfigFromFuture(validated.config, deps.logger);
-      const cfg = applyModelDefaults(
-        applyCompactionDefaults(
-          applyContextPruningDefaults(
-            applyAgentDefaults(
-              applySessionDefaults(applyLoggingDefaults(applyMessageDefaults(validated.config))),
-            ),
-          ),
-        ),
-      );
+      const cfg = validated.config;
       normalizeConfigPaths(cfg);
 
       const duplicates = findDuplicateAgentDirs(cfg, {
@@ -279,7 +272,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         throw new DuplicateAgentDirError(duplicates);
       }
 
-      applyConfigEnv(cfg, deps.env);
+      applyConfigEnv(cfg as OpenClawConfig, deps.env);
 
       const enabled = shouldEnableShellEnvFallback(deps.env) || cfg.env?.shellEnv?.enabled === true;
       if (enabled && !shouldDeferShellEnvFallback(deps.env)) {
@@ -292,7 +285,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         });
       }
 
-      return applyConfigOverrides(cfg);
+      return applyConfigOverrides(cfg as OpenClawConfig);
     } catch (err) {
       if (err instanceof DuplicateAgentDirError) {
         deps.logger.error(err.message);
