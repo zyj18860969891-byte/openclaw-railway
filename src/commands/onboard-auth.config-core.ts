@@ -12,6 +12,7 @@ import {
   VENICE_MODEL_CATALOG,
 } from "../agents/venice-models.js";
 import type { OpenClawConfig } from "../config/config.js";
+import type { ModelDefinitionConfig } from "../config/types.models.js";
 import {
   OPENROUTER_DEFAULT_MODEL_REF,
   VERCEL_AI_GATEWAY_DEFAULT_MODEL_REF,
@@ -64,6 +65,56 @@ export function applyOpenrouterProviderConfig(cfg: OpenClawConfig): OpenClawConf
     alias: models[OPENROUTER_DEFAULT_MODEL_REF]?.alias ?? "OpenRouter",
   };
 
+  // 添加StepFun 3.5 Flash模型定义
+  const stepfunModelRef = "openrouter/stepfun/step-3.5-flash:free";
+  models[stepfunModelRef] = {
+    ...models[stepfunModelRef],
+    alias: models[stepfunModelRef]?.alias ?? "Step 3.5 Flash",
+  };
+
+  const providers = { ...cfg.models?.providers };
+  const existingProvider = providers.openrouter;
+  const existingModels = Array.isArray(existingProvider?.models) ? existingProvider.models : [];
+
+  // 定义OpenRouter模型
+  const openrouterModels: ModelDefinitionConfig[] = [
+    {
+      id: "stepfun/step-3.5-flash:free",
+      name: "Step 3.5 Flash (free)",
+      reasoning: false,
+      input: ["text"],
+      cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+      contextWindow: 256000,
+      maxTokens: 256000,
+    },
+    ...(existingModels.filter((model: { id: string }) => model.id !== "stepfun/step-3.5-flash:free") as ModelDefinitionConfig[])
+  ];
+
+  const { apiKey: existingApiKey, ...existingProviderRest } = (existingProvider ?? {}) as Record<
+    string,
+    unknown
+  > as { apiKey?: string };
+  const resolvedApiKey = typeof existingApiKey === "string" ? existingApiKey : undefined;
+  const normalizedApiKey = resolvedApiKey?.trim();
+
+  providers.openrouter = {
+    ...existingProviderRest,
+    baseUrl: "https://openrouter.ai/api/v1",
+    api: "openai-completions",
+    ...(normalizedApiKey ? { apiKey: normalizedApiKey } : {}),
+    models: openrouterModels.length > 0 ? openrouterModels : [
+      {
+        id: "stepfun/step-3.5-flash:free",
+        name: "Step 3.5 Flash (free)",
+        reasoning: false,
+        input: ["text"],
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 256000,
+        maxTokens: 256000,
+      }
+    ],
+  };
+
   return {
     ...cfg,
     agents: {
@@ -72,6 +123,10 @@ export function applyOpenrouterProviderConfig(cfg: OpenClawConfig): OpenClawConf
         ...cfg.agents?.defaults,
         models,
       },
+    },
+    models: {
+      mode: cfg.models?.mode ?? "merge",
+      providers,
     },
   };
 }

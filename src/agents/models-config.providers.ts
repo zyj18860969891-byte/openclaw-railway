@@ -388,6 +388,33 @@ async function buildOllamaProvider(): Promise<ProviderConfig> {
   };
 }
 
+function buildOpenrouterProvider(): ProviderConfig {
+  return {
+    baseUrl: "https://openrouter.ai/api/v1",
+    api: "openai-completions",
+    models: [
+      {
+        id: "stepfun/step-3.5-flash:free",
+        name: "Step 3.5 Flash (free)",
+        reasoning: false,
+        input: ["text"] as const,
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 256000,
+        maxTokens: 256000,
+      },
+      {
+        id: "stepfun-ai/step3",
+        name: "Step 3",
+        reasoning: false,
+        input: ["text"] as const,
+        cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+        contextWindow: 256000,
+        maxTokens: 256000,
+      },
+    ],
+  };
+}
+
 export async function resolveImplicitProviders(params: {
   agentDir: string;
 }): Promise<ModelsConfig["providers"]> {
@@ -445,6 +472,9 @@ export async function resolveImplicitProviders(params: {
   if (xiaomiKey) {
     providers.xiaomi = { ...buildXiaomiProvider(), apiKey: xiaomiKey };
   }
+
+  // OpenRouter provider - automatically create with stepfun models
+  providers.openrouter = { ...buildOpenrouterProvider() };
 
   // Ollama provider - only add if explicitly configured
   const ollamaKey =
