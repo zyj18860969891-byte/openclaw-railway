@@ -20,7 +20,6 @@ import {
   applyMessageDefaults,
 } from "./defaults.js";
 import { applyEnvPriorityIfNeeded } from "./env-priority.js";
-import type { OpenClawConfig } from "./types.js";
   applyModelDefaults,
   applySessionDefaults,
   applyTalkApiKey,
@@ -261,7 +260,15 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         deps.logger.warn(`Config warnings:\\n${details}`);
       }
       warnIfConfigFromFuture(validated.config, deps.logger);
-      const cfg = validated.config;
+      const cfg = applyModelDefaults(
+        applyCompactionDefaults(
+          applyContextPruningDefaults(
+            applyAgentDefaults(
+              applySessionDefaults(applyLoggingDefaults(applyMessageDefaults(validated.config))),
+            ),
+          ),
+        ),
+      );
       normalizeConfigPaths(cfg);
 
       const duplicates = findDuplicateAgentDirs(cfg, {

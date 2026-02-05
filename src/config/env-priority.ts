@@ -42,9 +42,9 @@ export function applyEnvPriorityToChannels(config: OpenClawConfig, env: NodeJS.P
       const shouldBeEnabled = envValue === "true" || envValue === "1";
       
       // Override config file setting with environment variable
-      if (configWithPriority.channels[channel]?.enabled !== shouldBeEnabled) {
-        configWithPriority.channels[channel] = {
-          ...(configWithPriority.channels[channel] || {}),
+      if ((configWithPriority.channels[channel] as any)?.enabled !== shouldBeEnabled) {
+        (configWithPriority.channels as any)[channel] = {
+          ...(configWithPriority.channels[channel] as any),
           enabled: shouldBeEnabled,
         };
       }
