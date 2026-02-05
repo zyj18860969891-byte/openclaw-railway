@@ -18,6 +18,8 @@ import {
   applyAgentDefaults,
   applyLoggingDefaults,
   applyMessageDefaults,
+} from "./defaults.js";
+import { applyEnvPriorityIfNeeded } from "./env-priority.js";
   applyModelDefaults,
   applySessionDefaults,
   applyTalkApiKey,
@@ -224,7 +226,10 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
       // Substitute ${VAR} env var references
       const substituted = resolveConfigEnvVars(resolved, deps.env);
 
-      const resolvedConfig = substituted;
+      // Apply environment variable priority to channel settings
+      const withEnvPriority = applyEnvPriorityIfNeeded(substituted, deps.env);
+
+      const resolvedConfig = withEnvPriority;
       warnOnConfigMiskeys(resolvedConfig, deps.logger);
       if (typeof resolvedConfig !== "object" || resolvedConfig === null) return {};
       const preValidationDuplicates = findDuplicateAgentDirs(resolvedConfig as OpenClawConfig, {
