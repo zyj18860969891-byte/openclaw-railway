@@ -63,15 +63,10 @@ cat > "$CONFIG_FILE" << 'EOF'
     "dingtalk": {"enabled": true, "clientId": "dingwmptjicih9yk2dmr", "clientSecret": "w8p_LcdLbsjMNeaGHn3kyd8s6Q91SXmItawbm_JgBKsOSdsoo3MYuG_JMuzfkxh5", "connectionMode": "webhook", "dmPolicy": "open", "groupPolicy": "open"}
   },
   "skills": {
-    "enabled": true,
-    "autoInstall": true,
-    "sources": [
-      {
-        "type": "cli",
-        "command": "npx skills add",
-        "registry": "https://skills.sh"
-      }
-    ]
+    "install": {
+      "preferBrew": false,
+      "nodeManager": "npm"
+    }
   }
 }
 EOF
@@ -84,9 +79,16 @@ cat "$CONFIG_FILE" | head -20
 export OPENCLAW_STATE_DIR="/tmp/openclaw"
 export OPENCLAW_WORKSPACE_DIR="/tmp/workspace"
 export OPENCLAW_CONFIG_PATH="/tmp/openclaw/openclaw.json"
+# 启用自动技能安装功能
+export OPENCLAW_SKILLS_AUTO_INSTALL="true"
+export OPENCLAW_SKILLS_REQUIRE_CONFIRMATION="false"
+export OPENCLAW_SKILLS_MAX_PER_SESSION="3"
 
 echo "=== 环境变量已设置 ==="
 echo "OPENCLAW_WORKSPACE_DIR: $OPENCLAW_WORKSPACE_DIR"
 echo "OPENCLAW_CONFIG_PATH: $OPENCLAW_CONFIG_PATH"
+echo "OPENCLAW_SKILLS_AUTO_INSTALL: $OPENCLAW_SKILLS_AUTO_INSTALL"
+echo "OPENCLAW_SKILLS_REQUIRE_CONFIRMATION: $OPENCLAW_SKILLS_REQUIRE_CONFIRMATION"
+echo "OPENCLAW_SKILLS_MAX_PER_SESSION: $OPENCLAW_SKILLS_MAX_PER_SESSION"
 
 echo "=== 修复完成 ==="

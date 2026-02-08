@@ -9,6 +9,7 @@ import {
   CONFIG_PATH,
   isNixMode,
   loadConfig,
+  loadConfigWithOverrides,
   migrateLegacyConfig,
   readConfigFileSnapshot,
   writeConfigFile,
@@ -159,6 +160,7 @@ export async function startGatewayServer(
     description: "raw stream log path override",
   });
 
+  let config = loadConfigWithOverrides(undefined, process.env);
   let configSnapshot = await readConfigFileSnapshot();
   if (configSnapshot.legacyIssues.length > 0) {
     if (isNixMode) {
@@ -182,7 +184,6 @@ export async function startGatewayServer(
     }
   }
 
-  configSnapshot = await readConfigFileSnapshot();
   if (configSnapshot.exists && !configSnapshot.valid) {
     const issues =
       configSnapshot.issues.length > 0

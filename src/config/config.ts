@@ -1,6 +1,7 @@
 export {
   createConfigIO,
   loadConfig,
+  loadConfigWithOverrides,
   parseConfigJson5,
   readConfigFileSnapshot,
   resolveConfigSnapshotHash,

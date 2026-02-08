@@ -18,12 +18,11 @@ import {
   applyAgentDefaults,
   applyLoggingDefaults,
   applyMessageDefaults,
-} from "./defaults.js";
-import { applyEnvPriorityIfNeeded } from "./env-priority.js";
   applyModelDefaults,
   applySessionDefaults,
   applyTalkApiKey,
 } from "./defaults.js";
+import { applyEnvPriorityIfNeeded } from "./env-priority.js";
 import { VERSION } from "../version.js";
 import { MissingEnvVarError, resolveConfigEnvVars } from "./env-substitution.js";
 import { collectConfigEnvVars } from "./env-vars.js";
@@ -224,7 +223,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
       }
 
       // Substitute ${VAR} env var references
-      const substituted = resolveConfigEnvVars(resolved, deps.env);
+      const substituted = resolveConfigEnvVars(resolved, deps.env) as OpenClawConfig;
 
       // Apply environment variable priority to channel settings
       const withEnvPriority = applyEnvPriorityIfNeeded(substituted, deps.env);
@@ -246,7 +245,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
           .join("\n");
         if (!loggedInvalidConfigs.has(configPath)) {
           loggedInvalidConfigs.add(configPath);
-          deps.logger.error(`Invalid config at ${configPath}:\\n${details}`);
+          deps.logger.error(`Invalid config at ${configPath}:\n${details}`);
         }
         const error = new Error("Invalid config");
         (error as { code?: string; details?: string }).code = "INVALID_CONFIG";
@@ -260,7 +259,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         deps.logger.warn(`Config warnings:\\n${details}`);
       }
       warnIfConfigFromFuture(validated.config, deps.logger);
-      const cfg = applyModelDefaults(
+      let cfg = applyModelDefaults(
         applyCompactionDefaults(
           applyContextPruningDefaults(
             applyAgentDefaults(
@@ -270,6 +269,9 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         ),
       );
       normalizeConfigPaths(cfg);
+
+      // Apply environment variable priority after all defaults
+      cfg = applyEnvPriorityIfNeeded(cfg, deps.env);
 
       const duplicates = findDuplicateAgentDirs(cfg, {
         env: deps.env,
@@ -348,7 +350,7 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
           valid: false,
           config: {},
           hash,
-          issues: [{ path: "", message: `JSON5 parse failed: ${parsedRes.error}` }],
+          issues: [{ path: "", message: `JSON5 parse failed: ${parsedRes.error || "unknown error"}` }],
           warnings: [],
           legacyIssues: [],
         };
@@ -421,31 +423,47 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
           valid: false,
           config: coerceConfig(resolvedConfigRaw),
           hash,
-          issues: validated.issues,
+          issues: validated.ok ? [] : validated.issues,
           warnings: validated.warnings,
           legacyIssues,
         };
       }
 
       warnIfConfigFromFuture(validated.config, deps.logger);
+      let cfg = applyModelDefaults(
+        applyCompactionDefaults(
+          applyContextPruningDefaults(
+            applyAgentDefaults(
+              applySessionDefaults(applyLoggingDefaults(applyMessageDefaults(validated.config))),
+            ),
+          ),
+        ),
+      );
+      normalizeConfigPaths(cfg);
+
+      // Apply environment variable priority after all defaults
+      cfg = applyEnvPriorityIfNeeded(cfg, deps.env);
+
+      const duplicates = findDuplicateAgentDirs(cfg, {
+        env: deps.env,
+        homedir: deps.homedir,
+      });
+      if (duplicates.length > 0) {
+        throw new DuplicateAgentDirError(duplicates);
+      }
+
+      applyConfigEnv(cfg as OpenClawConfig, deps.env);
+
       return {
         path: configPath,
         exists: true,
         raw,
         parsed: parsedRes.parsed,
         valid: true,
-        config: normalizeConfigPaths(
-          applyTalkApiKey(
-            applyModelDefaults(
-              applyAgentDefaults(
-                applySessionDefaults(applyLoggingDefaults(applyMessageDefaults(validated.config))),
-              ),
-            ),
-          ),
-        ),
+        config: cfg,
         hash,
         issues: [],
-        warnings: validated.warnings,
+        warnings: [],
         legacyIssues,
       };
     } catch (err) {
@@ -575,6 +593,33 @@ export function loadConfig(): OpenClawConfig {
     if (cacheMs > 0) {
       configCache = {
         configPath,
+        expiresAt: now + cacheMs,
+        config,
+      };
+    }
+  }
+  return config;
+}
+
+export function loadConfigWithOverrides(configPath?: string, env?: NodeJS.ProcessEnv): OpenClawConfig {
+  // Use provided config path or environment, otherwise use defaults
+  const io = createConfigIO({
+    configPath,
+    env: env || process.env,
+  });
+  const now = Date.now();
+  if (shouldUseConfigCache(env || process.env)) {
+    const cached = configCache;
+    if (cached && cached.configPath === io.configPath && cached.expiresAt > now) {
+      return cached.config;
+    }
+  }
+  const config = io.loadConfig();
+  if (shouldUseConfigCache(env || process.env)) {
+    const cacheMs = resolveConfigCacheMs(env || process.env);
+    if (cacheMs > 0) {
+      configCache = {
+        configPath: io.configPath,
         expiresAt: now + cacheMs,
         config,
       };

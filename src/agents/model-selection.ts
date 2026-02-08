@@ -120,6 +120,32 @@ export function resolveConfiguredModelRef(params: {
   defaultProvider: string;
   defaultModel: string;
 }): ModelRef {
+  // First check environment variable (highest priority)
+  const envModel = process.env.MODEL_NAME;
+  if (envModel && envModel.trim()) {
+    const trimmed = envModel.trim();
+    console.log(`[model-selection] Using MODEL_NAME from environment: ${trimmed}`);
+    
+    if (!trimmed.includes("/")) {
+      // Default to anthropic if no provider is specified, but warn as this is deprecated.
+      console.warn(
+        `[openclaw] Model "${trimmed}" specified without provider in MODEL_NAME. Falling back to "anthropic/${trimmed}". Please use "anthropic/${trimmed}" in your config.`,
+      );
+      return { provider: "anthropic", model: trimmed };
+    }
+    
+    const aliasIndex = buildModelAliasIndex({
+      cfg: params.cfg,
+      defaultProvider: params.defaultProvider,
+    });
+    const resolved = resolveModelRefFromString({
+      raw: trimmed,
+      defaultProvider: params.defaultProvider,
+      aliasIndex,
+    });
+    if (resolved) return resolved.ref;
+  }
+
   const rawModel = (() => {
     const raw = params.cfg.agents?.defaults?.model as { primary?: string } | string | undefined;
     if (typeof raw === "string") return raw.trim();

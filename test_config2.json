@@ -1,0 +1,54 @@
+{
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "openrouter/stepfun/step-3.5-flash:free"
+      },
+      "workspace": "/tmp/openclaw",
+      "sandbox": {
+        "mode": "non-main"
+      }
+    }
+  },
+  "gateway": {
+    "mode": "local",
+    "port": 8080,
+    "bind": "lan",
+    "auth": {
+      "mode": "token",
+      "token": "test-token"
+    },
+    "trustedProxies": [
+      "100.64.0.0/10",
+      "23.227.167.3/32"
+    ],
+    "controlUi": {
+      "enabled": true,
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true
+    }
+  },
+  "canvasHost": {
+    "enabled": true
+  },
+  "logging": {
+    "level": "info",
+    "consoleStyle": "json"
+  },
+  "channels": {
+    "feishu": {
+      "enabled": true,
+      "appId": "test",
+      "appSecret": "test",
+      "dmPolicy": "open",
+      "groupPolicy": "open"
+    },
+    "dingtalk": {
+      "enabled": true,
+      "clientId": "test",
+      "clientSecret": "test",
+      "dmPolicy": "open",
+      "groupPolicy": "open"
+    }
+  }
+}

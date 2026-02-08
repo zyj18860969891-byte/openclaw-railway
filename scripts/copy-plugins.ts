@@ -4,8 +4,8 @@
  * This ensures only the needed channel plugins are included in the build
  */
 
-import fs from 'node:fs';
-import path from 'node:path';
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -111,28 +111,72 @@ function copyPlugins() {
   const distChannelsDir = path.join(projectRoot, 'dist', 'channels');
   fs.mkdirSync(distChannelsDir, { recursive: true });
 
+  // Also copy to workspace .openclaw/extensions for plugin discovery
+  const workspaceDir = process.env.OPENCLAW_WORKSPACE_DIR || '/tmp/workspace';
+  // Ensure we use forward slashes for Linux compatibility in Docker
+  const workspaceExtensionsDir = path.posix.join(workspaceDir, '.openclaw', 'extensions');
+  fs.mkdirSync(workspaceExtensionsDir, { recursive: true });
+
   let copiedCount = 0;
   let skippedCount = 0;
 
   for (const [channel, pluginInfo] of Object.entries(CHANNEL_PLUGINS)) {
-    if (shouldCopyChannel(channel, pluginInfo)) {
-      const srcDir = path.join(projectRoot, pluginInfo.dir, 'dist');
-      const destDir = path.join(distChannelsDir, channel);
+    const isEnabled = shouldCopyChannel(channel, pluginInfo);
+    const srcDir = path.join(projectRoot, pluginInfo.dir, 'dist');
+    const distDestDir = path.join(distChannelsDir, channel);
+    const workspaceDestDir = path.join(workspaceExtensionsDir, channel);
 
+    if (isEnabled) {
       if (fs.existsSync(srcDir)) {
-        console.log(`[copy-plugins] Copying ${channel} plugin from ${srcDir} to ${destDir}`);
-        copyDir(srcDir, destDir);
+        console.log(`[copy-plugins] Copying ${channel} plugin from ${srcDir} to ${distDestDir}`);
+        copyDir(srcDir, distDestDir);
+        // Also copy to workspace directory
+        console.log(`[copy-plugins] Copying ${channel} plugin to workspace: ${workspaceDestDir}`);
+        copyDir(srcDir, workspaceDestDir);
         copiedCount++;
       } else {
         console.warn(`[copy-plugins] Plugin source not found: ${srcDir}`);
       }
+    }
+
+    // Always copy plugin manifest files from extension root directory
+    // This ensures all plugins are discoverable by OpenClaw even if not enabled
+    const pluginManifests = ['openclaw.plugin.json', 'moltbot.plugin.json', 'clawdbot.plugin.json'];
+    const srcRootDir = path.join(projectRoot, pluginInfo.dir);
+
+    let manifestCopied = false;
+    for (const manifest of pluginManifests) {
+      const srcManifest = path.join(srcRootDir, manifest);
+      if (fs.existsSync(srcManifest)) {
+        // Copy to dist directory
+        const distManifest = path.join(distDestDir, manifest);
+        // Copy to workspace directory
+        const workspaceManifest = path.join(workspaceDestDir, manifest);
+        if (!manifestCopied) {
+          // Only create directories and log once if we're copying any manifest
+          fs.mkdirSync(distDestDir, { recursive: true });
+          fs.mkdirSync(workspaceDestDir, { recursive: true });
+          if (isEnabled) {
+            console.log(`[copy-plugins] Copying plugin manifests for ${channel} to dist and workspace`);
+          } else {
+            console.log(`[copy-plugins] Copying plugin manifests for ${channel} (disabled but available)`);
+          }
+          manifestCopied = true;
+        }
+        fs.copyFileSync(srcManifest, distManifest);
+        fs.copyFileSync(srcManifest, workspaceManifest);
+      }
+    }
+
+    if (isEnabled) {
+      console.log(`[copy-plugins] ✅ ${channel} plugin processed (enabled)`);
     } else {
-      console.log(`[copy-plugins] Skipping ${channel} plugin (not enabled)`);
+      console.log(`[copy-plugins] ⏸️  ${channel} plugin processed (disabled but manifests available)`);
       skippedCount++;
     }
   }
 
-  console.log(`[copy-plugins] Complete: ${copiedCount} plugin(s) copied, ${skippedCount} skipped`);
+  console.log(`[copy-plugins] Complete: ${copiedCount} plugin(s) fully copied, ${skippedCount} disabled but available`);
 }
 
 copyPlugins();

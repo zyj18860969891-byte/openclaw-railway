@@ -7,7 +7,17 @@ on_error() {
 }
 trap on_error ERR
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# 更健壮的 ROOT_DIR 设置
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -z "$SCRIPT_DIR" ]]; then
+  echo "Error: Could not determine script directory" >&2
+  exit 1
+fi
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+if [[ -z "$ROOT_DIR" ]]; then
+  echo "Error: Could not determine root directory" >&2
+  exit 1
+fi
 HASH_FILE="$ROOT_DIR/src/canvas-host/a2ui/.bundle.hash"
 OUTPUT_FILE="$ROOT_DIR/src/canvas-host/a2ui/a2ui.bundle.js"
 A2UI_RENDERER_DIR="$ROOT_DIR/vendor/a2ui/renderers/lit"
@@ -15,6 +25,23 @@ A2UI_APP_DIR="$ROOT_DIR/apps/shared/OpenClawKit/Tools/CanvasA2UI"
 
 # Docker builds exclude vendor/apps via .dockerignore.
 # In that environment we must keep the prebuilt bundle.
+echo "=== A2UI Bundle Debug ==="
+echo "A2UI_RENDERER_DIR: $A2UI_RENDERER_DIR"
+echo "A2UI_APP_DIR: $A2UI_APP_DIR"
+echo "Checking directories..."
+if [[ -d "$A2UI_RENDERER_DIR" ]]; then
+  echo "✅ Renderer dir exists: $A2UI_RENDERER_DIR"
+  ls -la "$A2UI_RENDERER_DIR" | head -10
+else
+  echo "❌ Renderer dir missing: $A2UI_RENDERER_DIR"
+fi
+if [[ -d "$A2UI_APP_DIR" ]]; then
+  echo "✅ App dir exists: $A2UI_APP_DIR"
+  ls -la "$A2UI_APP_DIR" | head -10
+else
+  echo "❌ App dir missing: $A2UI_APP_DIR"
+fi
+
 if [[ ! -d "$A2UI_RENDERER_DIR" || ! -d "$A2UI_APP_DIR" ]]; then
   echo "A2UI sources missing; keeping prebuilt bundle."
   exit 0

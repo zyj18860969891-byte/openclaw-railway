@@ -17,7 +17,7 @@ EXPOSE 8080
 # FORCED REBUILD MARKER - Railway must rebuild now
 
 # Build argument to force cache invalidation
-ARG CACHE_BUST=2026-02-07-WEBSOCKET-FIX-V1
+ARG CACHE_BUST=2026-02-07-PLUGIN-FIX-V5
 
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
 RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
@@ -35,8 +35,9 @@ ARG WECOM_ENABLED
 ARG TELEGRAM_ENABLED
 ARG DISCORD_ENABLED
 ARG SLACK_ENABLED
-ENV FEISHU_ENABLED=${FEISHU_ENABLED:-false} \
-    DINGTALK_ENABLED=${DINGTALK_ENABLED:-false} \
+# Force enable feishu and dingtalk by default for Railway
+ENV FEISHU_ENABLED=${FEISHU_ENABLED:-true} \
+    DINGTALK_ENABLED=${DINGTALK_ENABLED:-true} \
     WECOM_ENABLED=${WECOM_ENABLED:-false} \
     TELEGRAM_ENABLED=${TELEGRAM_ENABLED:-false} \
     DISCORD_ENABLED=${DISCORD_ENABLED:-false} \
@@ -124,8 +125,10 @@ RUN mkdir -p /data/.openclaw && chown -R root:root /data/.openclaw
 
 # Fix plugin manifest issues
 RUN chmod +x /app/fix-plugins.sh && /app/fix-plugins.sh
-RUN chmod +x /app/ensure-config.sh
+RUN chmod +x /app/fix-plugin-config.sh
 RUN chmod +x /app/healthcheck.sh
+RUN chmod +x /app/diagnose-plugins.sh
+RUN chmod +x /app/debug-plugins.sh
 
 ENV NODE_ENV=production
 ENV PORT=8080
@@ -149,4 +152,4 @@ RUN echo "=== RAILWAY DEBUG MARKER ===" && \
 
 # Railway health check endpoint - use root path for compatibility
 # 在容器启动时重新生成配置，注入运行时环境变量
-CMD bash -c 'echo "=== 环境变量 ==="; env | grep -E "(GATEWAY_TRUSTED_PROXIES|RAILWAY_ENVIRONMENT|NODE_ENV)" | sort; echo "=== 生成配置前 ==="; cat /tmp/openclaw/openclaw.json 2>/dev/null || echo "配置文件不存在"; /app/ensure-config.sh; echo "=== 生成配置后 ==="; cat /tmp/openclaw/openclaw.json; echo "=== 启动OpenClaw ==="; exec node openclaw.mjs gateway --allow-unconfigured --auth token --bind lan --port 8080 --log-level debug'
+CMD bash -c 'echo "=== 环境变量 ==="; env | grep -E "(GATEWAY_TRUSTED_PROXIES|RAILWAY_ENVIRONMENT|NODE_ENV|OPENCLAW_CONFIG_PATH)" | sort; echo "=== 生成配置前 ==="; cat /tmp/openclaw/openclaw.json 2>/dev/null || echo "配置文件不存在"; /app/fix-plugin-config.sh; echo "=== 生成配置后 ==="; cat /tmp/openclaw/openclaw.json; echo "=== 调试插件状态 ===\"; /app/debug-plugins.sh; echo "=== 详细诊断 ===\"; /app/diagnose-plugins.sh; echo "=== 启动OpenClaw ===\"; export OPENCLAW_CONFIG_PATH=/tmp/openclaw/openclaw.json; exec node dist/index.js gateway --allow-unconfigured --auth token --bind lan --port 8080 --verbose'

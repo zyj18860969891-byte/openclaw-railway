@@ -70,18 +70,18 @@ tmp
 # build artifacts
 dist
 **/dist
+# But we need plugin dist directories for Docker build
+!extensions/*/dist/
 apps/macos/.build
 apps/ios/build
 **/*.trace
 
 # large app trees not needed for CLI build
+# But we need specific A2UI sources for building
 apps/
-assets/
-Peekaboo/
-Swabble/
-Core/
-Users/
-vendor/
+!apps/shared/OpenClawKit/Tools/CanvasA2UI/
+# Include all vendor directory to ensure A2UI sources are available
+!vendor/
 
 # Railway specific exclusions
 # Don't exclude pnpm-lock.yaml as it's required for Railway builds

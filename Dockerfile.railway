@@ -34,10 +34,17 @@ COPY apps ./apps
 COPY packages ./packages
 COPY extensions ./extensions
 COPY patches ./patches
+COPY vendor ./vendor
 
 # 构建 UI
 COPY ui/package.json ./ui/
 RUN pnpm ui:build
+
+# 调试：检查A2UI目录
+RUN echo "=== DEBUG: Checking A2UI directories ===" && \
+    ls -la /app/vendor/a2ui/renderers/lit 2>&1 || echo "A2UI renderer dir missing" && \
+    ls -la /app/apps/shared/OpenClawKit/Tools/CanvasA2UI 2>&1 || echo "CanvasA2UI dir missing" && \
+    echo "=== END DEBUG ==="
 
 # 构建应用程序
 RUN OPENCLAW_A2UI_SKIP_MISSING=1 pnpm build

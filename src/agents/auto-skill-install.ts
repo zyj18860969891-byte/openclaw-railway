@@ -16,11 +16,19 @@ export interface AutoSkillInstallConfig {
 }
 
 export function getAutoInstallConfig(config: OpenClawConfig): AutoSkillInstallConfig {
-  const skillsConfig = config.skills as any;
+  // 从环境变量读取自动安装配置
+  const envAutoInstall = process.env.OPENCLAW_SKILLS_AUTO_INSTALL;
+  const envRequireConfirmation = process.env.OPENCLAW_SKILLS_REQUIRE_CONFIRMATION;
+  const envMaxSkills = process.env.OPENCLAW_SKILLS_MAX_PER_SESSION;
+  
+  const enabled = envAutoInstall ? envAutoInstall === 'true' || envAutoInstall === '1' : false;
+  const requireUserConfirmation = envRequireConfirmation ? envRequireConfirmation === 'true' || envRequireConfirmation === '1' : true;
+  const maxSkillsPerSession = envMaxSkills ? parseInt(envMaxSkills, 10) : 3;
+  
   return {
-    enabled: skillsConfig?.autoInstall ?? false,
-    requireUserConfirmation: true, // 默认需要用户确认
-    maxSkillsPerSession: 3, // 每会话最多安装3个技能
+    enabled,
+    requireUserConfirmation,
+    maxSkillsPerSession: isNaN(maxSkillsPerSession) ? 3 : maxSkillsPerSession,
   };
 }
 

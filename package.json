@@ -154,6 +154,7 @@
   },
   "packageManager": "pnpm@10.23.0",
   "dependencies": {
+    "@a2ui/lit": "^0.8.1",
     "@agentclientprotocol/sdk": "0.13.1",
     "@aws-sdk/client-bedrock": "^3.975.0",
     "@buape/carbon": "0.14.0",

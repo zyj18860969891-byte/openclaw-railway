@@ -4,7 +4,13 @@ import { ContextProvider } from "@lit/context";
 
 import { v0_8 } from "@a2ui/lit";
 import "@a2ui/lit/ui";
-import { themeContext } from "@openclaw/a2ui-theme-context";
+
+// Create a simple theme context for now
+const themeContext = {
+  theme: 'dark',
+  primaryColor: '#3b82f6',
+  secondaryColor: '#64748b'
+};
 
 const modalStyles = css`
   dialog {

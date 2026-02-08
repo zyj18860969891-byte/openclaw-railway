@@ -24,7 +24,7 @@ import type { createSubsystemLogger } from "../../../logging/subsystem.js";
 import { isGatewayCliClient, isWebchatClient } from "../../../utils/message-channel.js";
 import type { ResolvedGatewayAuth } from "../../auth.js";
 import { authorizeGatewayConnect, isLocalDirectRequest } from "../../auth.js";
-import { loadConfig } from "../../../config/config.js";
+import { loadConfigWithOverrides } from "../../../config/config.js";
 import { buildDeviceAuthPayload } from "../../device-auth.js";
 import { isLoopbackAddress, isTrustedProxyAddress, resolveGatewayClientIp } from "../../net.js";
 import { resolveNodeCommandAllowlist } from "../../node-command-policy.js";
@@ -189,7 +189,7 @@ export function attachGatewayWsMessageHandler(params: {
     logWsControl,
   } = params;
 
-  const configSnapshot = loadConfig();
+  const configSnapshot = loadConfigWithOverrides("/tmp/openclaw/openclaw.json", process.env);
   const trustedProxies = configSnapshot.gateway?.trustedProxies ?? [];
   const clientIp = resolveGatewayClientIp({ remoteAddr, forwardedFor, realIp, trustedProxies });
 
