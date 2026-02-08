@@ -66,7 +66,8 @@ cat > "$CONFIG_FILE" << 'EOF'
     "install": {
       "preferBrew": false,
       "nodeManager": "npm"
-    }
+    },
+    "autoInstall": true
   }
 }
 EOF
