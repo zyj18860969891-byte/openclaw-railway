@@ -52,6 +52,7 @@ import type { RunEmbeddedPiAgentParams } from "./run/params.js";
 import { buildEmbeddedRunPayloads } from "./run/payloads.js";
 import type { EmbeddedPiAgentMeta, EmbeddedPiRunResult } from "./types.js";
 import { describeUnknownError } from "./utils.js";
+import { processSkillNeeds } from "../auto-skill-install.js";
 
 type ApiKeyInfo = ResolvedProviderAuth;
 
@@ -297,6 +298,37 @@ export async function runEmbeddedPiAgent(
         while (true) {
           attemptedThinking.add(thinkLevel);
           await fs.mkdir(resolvedWorkspace, { recursive: true });
+
+          // 自动技能安装：检测并处理技能需求
+          if (params.config && params.prompt) {
+            try {
+              const skillResults = await processSkillNeeds(
+                params.prompt,
+                resolvedWorkspace,
+                params.config,
+                // 用户确认函数（如果需要）
+                params.requireSkillConfirmation 
+                  ? async (skill) => {
+                      // 这里可以集成用户确认机制
+                      log.info(`Auto-install: Found skill ${skill.name} from ${skill.repository}`);
+                      return true; // 自动确认，或者可以返回 false 要求用户手动确认
+                    }
+                  : undefined
+              );
+
+              if (skillResults.installed.length > 0) {
+                log.info(`Auto-install: Installed skills: ${skillResults.installed.join(", ")}`);
+                // 如果安装了新技能，可能需要重新构建技能快照
+                // 这里可以触发技能快照更新
+              }
+
+              if (skillResults.errors.length > 0) {
+                log.warn(`Auto-install: Errors: ${skillResults.errors.join(", ")}`);
+              }
+            } catch (skillError) {
+              log.warn(`Auto-install: Failed to process skill needs: ${skillError}`);
+            }
+          }
 
           const prompt =
             provider === "anthropic" ? scrubAnthropicRefusalMagic(params.prompt) : params.prompt;

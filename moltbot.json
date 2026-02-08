@@ -20,7 +20,7 @@
       "renderMode": "card"
     },
     "dingtalk": {
-      "enabled": false,
+      "enabled": true,
       "clientId": "${DINGTALK_CLIENT_ID}",
       "clientSecret": "${DINGTALK_CLIENT_SECRET}",
       "dmPolicy": "pairing"
@@ -57,6 +57,7 @@
   },
   "skills": {
     "enabled": true,
+    "autoInstall": true,
     "sources": [
       {
         "type": "cli",

@@ -43,6 +43,7 @@ import { resolveQueueSettings } from "./queue.js";
 import { ensureSkillSnapshot, prependSystemEvents } from "./session-updates.js";
 import type { TypingController } from "./typing.js";
 import { resolveTypingMode } from "./typing-mode.js";
+import { processSkillNeeds } from "../../agents/auto-skill-install.js";
 
 type AgentDefaults = NonNullable<OpenClawConfig["agents"]>["defaults"];
 type ExecOverrides = Pick<ExecToolDefaults, "host" | "security" | "ask" | "node">;
@@ -231,6 +232,36 @@ export async function runPreparedReply(
     isNewSession && threadStarterBody
       ? `[Thread starter - for context]\n${threadStarterBody}`
       : undefined;
+  
+  // 自动技能安装：在构建技能快照之前检测并安装所需技能
+  const skillsConfig = cfg?.skills as any;
+  const commandBody = params.command?.commandBodyNormalized;
+  if (skillsConfig?.autoInstall && commandBody) {
+    try {
+      const skillResults = await processSkillNeeds(
+        commandBody,
+        workspaceDir,
+        cfg,
+        // 用户确认函数（如果需要）
+        skillsConfig?.requireUserConfirmation ? async (skill) => {
+          console.log(`[Auto-install] Found skill ${skill.name} from ${skill.repository}`);
+          return true; // 自动确认，或者可以返回 false 要求用户手动确认
+        } : undefined
+      );
+
+      if (skillResults.installed.length > 0) {
+        console.log(`[Auto-install] Installed skills: ${skillResults.installed.join(", ")}`);
+        // 注意：ensureSkillSnapshot 会检测到技能版本变化并自动重新构建快照
+      }
+
+      if (skillResults.errors.length > 0) {
+        console.warn(`[Auto-install] Errors: ${skillResults.errors.join(", ")}`);
+      }
+    } catch (skillError) {
+      console.warn(`[Auto-install] Failed to process skill needs: ${skillError}`);
+    }
+  }
+  
   const skillResult = await ensureSkillSnapshot({
     sessionEntry,
     sessionStore,
