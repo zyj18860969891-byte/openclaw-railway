@@ -299,7 +299,10 @@ export async function runEmbeddedPiAgent(
           attemptedThinking.add(thinkLevel);
           await fs.mkdir(resolvedWorkspace, { recursive: true });
 
-          // 自动技能安装：检测并处理技能需求
+          // 注意：自动技能安装现在在 get-reply-run.ts 中的 ensureSkillSnapshot 之前执行
+          // 这里不再需要重复的自动安装逻辑，避免时序问题
+          // 如果需要启用后备机制，可以取消注释以下代码：
+          /*
           if (params.config && params.prompt) {
             try {
               const skillResults = await processSkillNeeds(
@@ -329,6 +332,7 @@ export async function runEmbeddedPiAgent(
               log.warn(`Auto-install: Failed to process skill needs: ${skillError}`);
             }
           }
+          */
 
           const prompt =
             provider === "anthropic" ? scrubAnthropicRefusalMagic(params.prompt) : params.prompt;

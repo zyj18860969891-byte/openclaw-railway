@@ -60,6 +60,9 @@
     "install": {
       "preferBrew": false,
       "nodeManager": "npm"
-    }
+    },
+    "autoInstall": true,
+    "requireUserConfirmation": false,
+    "maxPerSession": 3
   }
 }

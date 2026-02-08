@@ -1,6 +1,7 @@
 import type { OpenClawConfig } from "../config/config.js";
 import { loadWorkspaceSkillEntries } from "./skills.js";
 import { runExec } from "../process/exec.js";
+import { bumpSkillsSnapshotVersion } from "./skills/refresh.js";
 
 export interface SkillSearchResult {
   name: string;
@@ -144,6 +145,8 @@ export async function installSkill(
                    stderr.includes("Installed");
 
     if (success) {
+      // 触发技能版本更新，确保快照重新构建
+      bumpSkillsSnapshotVersion({ workspaceDir, reason: "manual" });
       return {
         success: true,
         message: `Successfully installed skill: ${skillName}`,

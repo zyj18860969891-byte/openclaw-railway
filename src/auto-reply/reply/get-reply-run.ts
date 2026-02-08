@@ -20,7 +20,6 @@ import { normalizeMainKey } from "../../routing/session-key.js";
 import { isReasoningTagProvider } from "../../utils/provider-utils.js";
 import { hasControlCommand } from "../command-detection.js";
 import { buildInboundMediaNote } from "../media-note.js";
-import { getAutoInstallConfig } from "../../agents/auto-skill-install.js";
 import type { MsgContext, TemplateContext } from "../templating.js";
 import {
   type ElevatedLevel,
@@ -44,7 +43,7 @@ import { resolveQueueSettings } from "./queue.js";
 import { ensureSkillSnapshot, prependSystemEvents } from "./session-updates.js";
 import type { TypingController } from "./typing.js";
 import { resolveTypingMode } from "./typing-mode.js";
-import { processSkillNeeds } from "../../agents/auto-skill-install.js";
+import { processSkillNeeds, getAutoInstallConfig } from "../../agents/auto-skill-install.js";
 
 type AgentDefaults = NonNullable<OpenClawConfig["agents"]>["defaults"];
 type ExecOverrides = Pick<ExecToolDefaults, "host" | "security" | "ask" | "node">;
