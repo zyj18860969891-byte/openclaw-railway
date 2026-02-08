@@ -57,13 +57,9 @@
   },
   "skills": {
     "enabled": true,
-    "autoInstall": true,
-    "sources": [
-      {
-        "type": "cli",
-        "command": "npx skills add",
-        "registry": "https://skills.sh"
-      }
-    ]
+    "install": {
+      "preferBrew": false,
+      "nodeManager": "npm"
+    }
   }
 }

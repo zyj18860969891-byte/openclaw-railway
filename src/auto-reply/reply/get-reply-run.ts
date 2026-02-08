@@ -20,6 +20,7 @@ import { normalizeMainKey } from "../../routing/session-key.js";
 import { isReasoningTagProvider } from "../../utils/provider-utils.js";
 import { hasControlCommand } from "../command-detection.js";
 import { buildInboundMediaNote } from "../media-note.js";
+import { getAutoInstallConfig } from "../../agents/auto-skill-install.js";
 import type { MsgContext, TemplateContext } from "../templating.js";
 import {
   type ElevatedLevel,
@@ -234,16 +235,17 @@ export async function runPreparedReply(
       : undefined;
   
   // 自动技能安装：在构建技能快照之前检测并安装所需技能
-  const skillsConfig = cfg?.skills as any;
   const commandBody = params.command?.commandBodyNormalized;
-  if (skillsConfig?.autoInstall && commandBody) {
+  const autoInstallConfig = getAutoInstallConfig(cfg);
+  
+  if (autoInstallConfig.enabled && commandBody) {
     try {
       const skillResults = await processSkillNeeds(
         commandBody,
         workspaceDir,
         cfg,
         // 用户确认函数（如果需要）
-        skillsConfig?.requireUserConfirmation ? async (skill) => {
+        autoInstallConfig.requireUserConfirmation ? async (skill) => {
           console.log(`[Auto-install] Found skill ${skill.name} from ${skill.repository}`);
           return true; // 自动确认，或者可以返回 false 要求用户手动确认
         } : undefined
