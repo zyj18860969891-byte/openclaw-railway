@@ -16,7 +16,7 @@
   CACHE_BUST = "2026-02-07-PLUGIN-FIX-V11"
 
 [deploy]
-  startCommand = "bash -c 'echo \"=== 环境变量 ===\"; env | grep -E \"(GATEWAY_TRUSTED_PROXIES|RAILWAY_ENVIRONMENT|NODE_ENV|OPENCLAW_CONFIG_PATH|OPENCLAW_SKILLS|PORT)\" | sort; echo \"=== 生成配置前 ===\"; cat /tmp/openclaw/openclaw.json 2>/dev/null || echo \"配置文件不存在\"; /app/fix-plugin-config.sh; echo \"=== 确保controlUi配置 ===\"; node -e \"const fs=require(\\\"fs\\\"); const path=\\\"/tmp/openclaw/openclaw.json\\\"; const cfg=JSON.parse(fs.readFileSync(path,\\\"utf8\\\")); if (!cfg.gateway) cfg.gateway={}; if (!cfg.gateway.controlUi) cfg.gateway.controlUi={}; cfg.gateway.controlUi.enabled=true; cfg.gateway.controlUi.allowInsecureAuth=true; cfg.gateway.controlUi.dangerouslyDisableDeviceAuth=true; cfg.gateway.controlUi.basePath=\\\"/\\\"; fs.writeFileSync(path, JSON.stringify(cfg,null,2)); console.log(\\\"Ensured controlUi config\\\");\"; cat /tmp/openclaw/openclaw.json; echo \"=== 调试插件状态 ===\"; /app/debug-plugins.sh; echo \"=== 详细诊断 ===\"; /app/diagnose-plugins.sh; echo \"=== 启动OpenClaw ===\"; export OPENCLAW_CONFIG_PATH=/tmp/openclaw/openclaw.json; echo \"Using port: ${PORT:-8080}\"; exec node dist/index.js gateway --allow-unconfigured --auth token --bind lan --port ${PORT:-8080}'"
+  startCommand = "bash -c 'echo \"=== 环境变量 ===\"; env | grep -E \"(GATEWAY_TRUSTED_PROXIES|RAILWAY_ENVIRONMENT|NODE_ENV|OPENCLAW_CONFIG_PATH|OPENCLAW_SKILLS|PORT)\" | sort; echo \"=== 生成配置前 ===\"; cat /tmp/openclaw/openclaw.json 2>/dev/null || echo \"配置文件不存在\"; /app/fix-plugin-config.sh; echo \"=== 确保controlUi配置 ===\"; node -e \"const fs=require(\\\"fs\\\"); const path=\\\"/tmp/openclaw/openclaw.json\\\"; const cfg=JSON.parse(fs.readFileSync(path,\\\"utf8\\\")); if (!cfg.gateway) cfg.gateway={}; if (!cfg.gateway.controlUi) cfg.gateway.controlUi={}; cfg.gateway.controlUi.enabled=true; cfg.gateway.controlUi.allowInsecureAuth=true; cfg.gateway.controlUi.dangerouslyDisableDeviceAuth=true; cfg.gateway.controlUi.basePath=\\\"/\\\"; cfg.gateway.controlUi.sessionTimeout=3600000; cfg.gateway.controlUi.maxConnections=100; cfg.gateway.controlUi.rateLimit=\\\"100/minute\\\"; fs.writeFileSync(path, JSON.stringify(cfg,null,2)); console.log(\\\"Ensured controlUi config\\\");\"; cat /tmp/openclaw/openclaw.json; echo \"=== 禁用沙箱功能 ===\"; node -e \"const fs=require(\\\"fs\\\"); const path=\\\"/tmp/openclaw/openclaw.json\\\"; const cfg=JSON.parse(fs.readFileSync(path,\\\"utf8\\\")); if (!cfg.agents) cfg.agents={}; if (!cfg.agents.defaults) cfg.agents.defaults={}; if (!cfg.agents.defaults.sandbox) cfg.agents.defaults.sandbox={}; cfg.agents.defaults.sandbox.mode=\\\"disabled\\\"; fs.writeFileSync(path, JSON.stringify(cfg,null,2)); console.log(\\\"Disabled sandbox\\\");\"; echo \"=== 启动OpenClaw ===\"; export OPENCLAW_CONFIG_PATH=/tmp/openclaw/openclaw.json; echo \"Using port: ${PORT:-8080}\"; exec node dist/index.js gateway --allow-unconfigured --auth token --bind lan --port ${PORT:-8080}'"
   restartPolicyType = "always"
   restartPolicyMaxRetries = 10
   # 启用重启命令，以便配置更改后可以重启服务
@@ -39,6 +39,18 @@
   GATEWAY_BIND = "lan"
   # 端口由Railway动态分配，通过$PORT环境变量传递
   DM_SCOPE = "per-peer"
+  # WebSocket 连接配置
+  GATEWAY_WEBSOCKET_TIMEOUT = "3600000"
+  GATEWAY_WEBSOCKET_MAX_CONNECTIONS = "200"
+  GATEWAY_WEBSOCKET_HEARTBEAT = "30000"
+  # 网关资源限制配置 - 针对多通道优化
+  GATEWAY_RATE_LIMIT = "300/minute"
+  GATEWAY_CONCURRENT_CONNECTIONS = "150"
+  GATEWAY_MESSAGE_QUEUE_SIZE = "5000"
+  GATEWAY_SESSION_CLEANUP_INTERVAL = "300000"
+  # 会话管理优化
+  GATEWAY_SESSION_IDLE_TIMEOUT = "1800000"
+  GATEWAY_MAX_SESSIONS_PER_CHANNEL = "50"
   OPENCLAW_STATE_DIR = "/tmp/openclaw"
   OPENCLAW_WORKSPACE_DIR = "/tmp/workspace"
   # 修复权限问题
