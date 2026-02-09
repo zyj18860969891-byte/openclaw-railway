@@ -37,7 +37,7 @@ cat > "$CONFIG_FILE" << 'EOF'
       },
       "workspace": "/tmp/openclaw",
       "sandbox": {
-        "mode": "non-main"
+        "mode": "off"
       },
       "maxConcurrent": 4,
       "subagents": {
@@ -108,7 +108,6 @@ cat > "$CONFIG_FILE" << 'EOF'
     "requireUserConfirmation": false,
     "maxPerSession": 3,
     "install": {
-      "preferBrew": false,
       "nodeManager": "npm"
     }
   },

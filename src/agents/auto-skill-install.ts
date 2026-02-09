@@ -238,17 +238,26 @@ export async function searchSkills(
 
     // 策略 2: 使用 npx skills find（传统方法）
     console.log(`🔍 Using npx skills find for: ${query}`);
-    const { stdout, stderr } = await runExec("npx", ["skills", "find", query], {
-      timeoutMs: 30000,
-    });
+    try {
+      const { stdout, stderr } = await runExec("npx", ["skills", "find", query], {
+        timeoutMs: 30000,
+      });
 
-    if (stderr && stderr.includes("error")) {
-      console.error(`Skills search failed: ${stderr}`);
-      return [];
+      if (stderr && stderr.includes("error")) {
+        console.warn(`Skills search failed: ${stderr}, trying fallback...`);
+        // 尝试回退策略
+        results = await searchWithFallback(query);
+      } else {
+        // 解析搜索结果
+        results = parseSkillsFindOutput(stdout);
+        console.log(`🔍 Found ${results.length} skills for query: ${query}`);
+      }
+      
+    } catch (searchError) {
+      console.warn(`Skills search command failed: ${searchError}, trying fallback...`);
+      // 回退策略
+      results = await searchWithFallback(query);
     }
-
-    // 解析搜索结果
-    results = parseSkillsFindOutput(stdout);
     
     // 如果需要验证可执行性，异步检查并排序
     if (verifyExecutable && results.length > 1) {
@@ -260,6 +269,81 @@ export async function searchSkills(
     console.error(`Error searching skills: ${error}`);
     return [];
   }
+}
+
+/**
+ * 回退搜索策略：使用内置的常用技能数据库
+ */
+async function searchWithFallback(query: string): Promise<SkillSearchResult[]> {
+  console.log(`🔄 Using fallback search for: ${query}`);
+  
+  // 常用技能映射表
+  const commonSkills: Record<string, SkillSearchResult[]> = {
+    weather: [
+      {
+        name: "weather",
+        description: "天气查询技能",
+        repository: "jimliu/baoyu-skills",
+        homepage: "https://skills.sh/jimliu/baoyu-skills/weather",
+      }
+    ],
+    time: [
+      {
+        name: "time",
+        description: "时间查询技能",
+        repository: "jimliu/baoyu-skills",
+        homepage: "https://skills.sh/jimliu/baoyu-skills/time",
+      }
+    ],
+    translate: [
+      {
+        name: "translate",
+        description: "翻译技能",
+        repository: "jimliu/baoyu-skills",
+        homepage: "https://skills.sh/jimliu/baoyu-skills/translate",
+      }
+    ],
+    calculator: [
+      {
+        name: "calculator",
+        description: "计算器技能",
+        repository: "jimliu/baoyu-skills",
+        homepage: "https://skills.sh/jimliu/baoyu-skills/calculator",
+      }
+    ],
+    image: [
+      {
+        name: "image-gen",
+        description: "图像生成技能",
+        repository: "jimliu/baoyu-skills",
+        homepage: "https://skills.sh/jimliu/baoyu-skills/image-gen",
+      }
+    ]
+  };
+  
+  // 查找匹配的技能
+  const queryLower = query.toLowerCase();
+  const matchedSkills: SkillSearchResult[] = [];
+  
+  // 精确匹配
+  if (commonSkills[queryLower]) {
+    matchedSkills.push(...commonSkills[queryLower]);
+  }
+  
+  // 模糊匹配
+  for (const [key, skills] of Object.entries(commonSkills)) {
+    if (key.includes(queryLower) || queryLower.includes(key)) {
+      matchedSkills.push(...skills);
+    }
+  }
+  
+  // 去重
+  const uniqueSkills = matchedSkills.filter((skill, index, self) => 
+    index === self.findIndex(s => s.name === skill.name)
+  );
+  
+  console.log(`🔄 Fallback search found ${uniqueSkills.length} skills for: ${query}`);
+  return uniqueSkills;
 }
 
 /**
@@ -389,7 +473,7 @@ async function verifyInstalledSkill(skillName: string, workspaceDir: string): Pr
     }
     
     // 检查技能目录中是否有 cmd.sh 或 cmd.bat
-    const skillDir = entry.path;
+    const skillDir = skillEntry.path;
     const possibleExecutables = [
       path.join(skillDir, "cmd.sh"),
       path.join(skillDir, "cmd.bat"),
@@ -493,6 +577,7 @@ export async function processSkillNeeds(
     try {
       // 检查是否已安装
       if (await isSkillInstalled(skillName, workspaceDir)) {
+        console.log(`✅ Skill already installed: ${skillName}`);
         skipped.push(`${skillName} (already installed)`);
         continue;
       }
@@ -501,9 +586,12 @@ export async function processSkillNeeds(
       const searchResults = await searchSkills(skillName, autoInstallConfig.verifyExecutable, workspaceDir);
       
       if (searchResults.length === 0) {
+        console.warn(`⚠️ No skill found for: ${skillName}`);
         errors.push(`No skill found for: ${skillName}`);
         continue;
       }
+      
+      console.log(`🔍 Found ${searchResults.length} candidates for skill: ${skillName}`);
 
       // 尝试安装候选技能，直到成功或耗尽候选
       let installedSuccessfully = false;
