@@ -200,6 +200,11 @@ export async function startFeishuGateway(opts: FeishuGatewayOptions = {}): Promi
 
             return {};
           },
+          "im.message.message_read_v1": async (data: unknown) => {
+            // 处理消息已读事件，避免SDK警告
+            logger.debug("message read event received");
+            return {};
+          },
         }),
       });
 

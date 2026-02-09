@@ -32,21 +32,48 @@ cat > "$CONFIG_FILE" << 'EOF'
 {
   "agents": {
     "defaults": {
-      "model": {"primary": "openrouter/stepfun/step-3.5-flash:free"},
+      "model": {
+        "primary": "openrouter/stepfun/step-3.5-flash:free"
+      },
       "workspace": "/tmp/openclaw",
-      "sandbox": {"mode": "non-main"}
+      "sandbox": {
+        "mode": "non-main"
+      },
+      "maxConcurrent": 4,
+      "subagents": {
+        "maxConcurrent": 8
+      },
+      "compaction": {
+        "mode": "safeguard"
+      }
     }
   },
   "gateway": {
     "mode": "local",
     "port": 8080,
     "bind": "lan",
-    "auth": {"mode": "token", "token": "aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A"},
-    "trustedProxies": ["100.64.0.0/10", "23.227.167.3/32"],
-    "controlUi": {"enabled": true, "allowInsecureAuth": true, "dangerouslyDisableDeviceAuth": true}
+    "auth": {
+      "mode": "token",
+      "token": "aE8D17b2aef960C736De1cDFDdc4806d314e2C2DebDedAe84A832fdbDefAEC7A"
+    },
+    "trustedProxies": [
+      "100.64.0.0/10",
+      "23.227.167.3/32"
+    ],
+    "controlUi": {
+      "enabled": true,
+      "allowInsecureAuth": true,
+      "dangerouslyDisableDeviceAuth": true,
+      "basePath": "/"
+    }
   },
-  "canvasHost": {"enabled": true},
-  "logging": {"level": "info", "consoleStyle": "json"},
+  "canvasHost": {
+    "enabled": true
+  },
+  "logging": {
+    "level": "info",
+    "consoleStyle": "json"
+  },
   "plugins": {
     "enabled": true,
     "entries": {
@@ -59,13 +86,43 @@ cat > "$CONFIG_FILE" << 'EOF'
     }
   },
   "channels": {
-    "feishu": {"enabled": true, "appId": "cli_a90b00a3bd799cb1", "appSecret": "LPjfXz3MxIlkLzsZOwXJIfVht0il4gEj", "connectionMode": "websocket", "dmPolicy": "open", "groupPolicy": "open"},
-    "dingtalk": {"enabled": true, "clientId": "dingwmptjicih9yk2dmr", "clientSecret": "w8p_LcdLbsjMNeaGHn3kyd8s6Q91SXmItawbm_JgBKsOSdsoo3MYuG_JMuzfkxh5", "connectionMode": "webhook", "dmPolicy": "open", "groupPolicy": "open"}
+    "feishu": {
+      "enabled": true,
+      "appId": "cli_a90b00a3bd799cb1",
+      "appSecret": "LPjfXz3MxIlkLzsZOwXJIfVht0il4gEj",
+      "connectionMode": "websocket",
+      "dmPolicy": "open",
+      "groupPolicy": "open"
+    },
+    "dingtalk": {
+      "enabled": true,
+      "clientId": "dingwmptjicih9yk2dmr",
+      "clientSecret": "w8p_LcdLbsjMNeaGHn3kyd8s6Q91SXmItawbm_JgBKsOSdsoo3MYuG_JMuzfkxh5",
+      "connectionMode": "webhook",
+      "dmPolicy": "open",
+      "groupPolicy": "open"
+    }
   },
   "skills": {
+    "autoInstall": true,
+    "requireUserConfirmation": false,
+    "maxPerSession": 3,
     "install": {
       "preferBrew": false,
       "nodeManager": "npm"
+    }
+  },
+  "session": {
+    "dmScope": "per-peer"
+  },
+  "security": {
+    "sandbox": {
+      "enabled": true,
+      "mode": "non-main"
+    },
+    "isolation": {
+      "enabled": true,
+      "scope": "per-peer"
     }
   }
 }
