@@ -1,0 +1,95 @@
+--- a/src/config/io.ts
++++ b/src/config/io.ts
+@@ -520,6 +520,7 @@ async function writeConfigFile(cfg: OpenClawConfig) {
+   clearConfigCache();
+   const validated = validateConfigObjectWithPlugins(cfg);
+   if (!validated.ok) {
++    console.error("Config validation failed:", validated.issues);
+     const issue = validated.issues[0];
+     const pathLabel = issue?.path ? issue.path : "<root>";
+     throw new Error(`Config validation failed: ${pathLabel}: ${issue?.message ?? "invalid"}`);
+@@ -540,6 +541,7 @@ async function writeConfigFile(cfg: OpenClawConfig) {
+   await deps.fs.promises.mkdir(dir, { recursive: true, mode: 0o700 });
+   const json = JSON.stringify(applyModelDefaults(stampConfigVersion(cfg)), null, 2)
+     .trimEnd()
++    .concat("\n");
+ 
+   const tmp = path.join(
+     dir,
+@@ -560,6 +562,7 @@ async function writeConfigFile(cfg: OpenClawConfig) {
+     await deps.fs.promises.copyFile(tmp, configPath);
+     await deps.fs.promises.chmod(configPath, 0o600).catch(() => {
+       // best-effort
++      console.warn("Failed to chmod config file");
+     });
+     await deps.fs.promises.unlink(tmp).catch(() => {
+       // best-effort
+@@ -570,6 +573,7 @@ async function writeConfigFile(cfg: OpenClawConfig) {
+     throw err;
+   }
+   console.log("Config saved successfully to:", configPath);
++  console.log("Config includes controlUi:", !!cfg.gateway?.controlUi);
+ }
+ 
+ return {
+--- a/src/config/runtime-overrides.ts
++++ b/src/config/runtime-overrides.ts
+@@ -1,6 +1,7 @@
+ import { parseConfigPath, setConfigValueAtPath, unsetConfigValueAtPath } from "./config-paths.js";
+ import type { OpenClawConfig } from "./types.js";
+ 
++console.log("Loading runtime overrides...");
+ type OverrideTree = Record<string, unknown>;
+ 
+ let overrides: OverrideTree = {};
+@@ -35,6 +36,7 @@ export function setConfigOverride(
+   const parsed = parseConfigPath(pathRaw);
+   if (!parsed.ok || !parsed.path) {
+     return { ok: false, error: parsed.error ?? "Invalid path." };
+   }
++  console.log("Setting config override:", pathRaw, value);
+   setConfigValueAtPath(overrides, parsed.path, value);
+   return { ok: true };
+ }
+@@ -49,6 +51,7 @@ export function unsetConfigOverride(pathRaw: string): {
+   const parsed = parseConfigPath(pathRaw);
+   if (!parsed.ok || !parsed.path) {
+     return {
++      console.log("Unsetting config override:", pathRaw),
+       ok: false,
+       removed: false,
+       error: parsed.error ?? "Invalid path.",
+@@ -59,6 +62,7 @@ export function unsetConfigOverride(pathRaw: string): {
+ }
+ 
+ export function applyConfigOverrides(cfg: OpenClawConfig): OpenClawConfig {
++  console.log("Applying config overrides, current overrides:", Object.keys(overrides));
+   if (!overrides || Object.keys(overrides).length === 0) return cfg;
+   return mergeOverrides(cfg, overrides) as OpenClawConfig;
+ }
+--- a/src/gateway/server-methods/config.ts
++++ b/src/gateway/server-methods/config.ts
+@@ -170,6 +170,7 @@ export const configHandlers: GatewayRequestHandlers = {
+     }
+     await writeConfigFile(validated.config);
+     console.log("Config.set completed successfully");
++    console.log("Config.set - controlUi after save:", validated.config.gateway?.controlUi);
+     respond(
+       true,
+       {
+@@ -220,6 +221,7 @@ export const configHandlers: GatewayRequestHandlers = {
+     }
+     await writeConfigFile(validated.config);
+     console.log("Config.patch completed successfully");
++    console.log("Config.patch - controlUi after save:", validated.config.gateway?.controlUi);
+     const sessionKey =
+       typeof (params as { sessionKey?: unknown }).sessionKey === "string"
+         ? (params as { sessionKey?: string }).sessionKey?.trim() || undefined
+@@ -360,6 +362,7 @@ export const configHandlers: GatewayRequestHandlers = {
+     }
+     await writeConfigFile(validated.config);
+     console.log("Config.apply completed successfully");
++    console.log("Config.apply - controlUi after save:", validated.config.gateway?.controlUi);
+     const sessionKey =
+       typeof (params as { sessionKey?: unknown }).sessionKey === "string"
+         ? (params as { sessionKey?: string }).sessionKey?.trim() || undefined

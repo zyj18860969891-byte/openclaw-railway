@@ -28,4 +28,12 @@ export type SkillsConfig = {
   load?: SkillsLoadConfig;
   install?: SkillsInstallConfig;
   entries?: Record<string, SkillConfig>;
+  /** Auto-install configuration */
+  autoInstall?: boolean;
+  requireUserConfirmation?: boolean;
+  maxPerSession?: number;
+  /** Verify skill has executable before considering installation successful */
+  verifyExecutable?: boolean;
+  /** If installation fails, automatically try next candidate */
+  fallbackToNextCandidate?: boolean;
 };

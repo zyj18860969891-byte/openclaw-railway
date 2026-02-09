@@ -45,16 +45,6 @@
       "dangerouslyDisableDeviceAuth": true
     }
   },
-  "security": {
-    "sandbox": {
-      "enabled": true,
-      "mode": "non-main"
-    },
-    "isolation": {
-      "enabled": true,
-      "scope": "per-peer"
-    }
-  },
   "skills": {
     "enabled": true,
     "install": {

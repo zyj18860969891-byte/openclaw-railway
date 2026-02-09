@@ -5,6 +5,8 @@ import path from "node:path";
 
 import JSON5 from "json5";
 
+import { preserveControlUiConfig, isControlUiConfigured } from "./control-ui-preservation.js";
+
 import {
   loadShellEnvFallback,
   resolveShellEnvFallbackTimeoutMs,
@@ -294,7 +296,23 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
         });
       }
 
-      return applyConfigOverrides(cfg as OpenClawConfig);
+      const configWithOverrides = applyConfigOverrides(cfg as OpenClawConfig);
+      
+      // Preserve controlUi configuration to prevent pairing issues
+      const finalConfig = preserveControlUiConfig(configWithOverrides);
+      
+      // Log controlUi status for debugging
+      if (!isControlUiConfigured(finalConfig)) {
+        deps.logger.warn(
+          "Control UI configuration is not properly set up. " +
+          "This may cause pairing issues. " +
+          "Expected: { enabled: true, allowInsecureAuth: true, dangerouslyDisableDeviceAuth: true }"
+        );
+      } else {
+        deps.logger.info("Control UI configuration is properly set up");
+      }
+      
+      return finalConfig;
     } catch (err) {
       if (err instanceof DuplicateAgentDirError) {
         deps.logger.error(err.message);
@@ -454,13 +472,16 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
 
       applyConfigEnv(cfg as OpenClawConfig, deps.env);
 
+      // Preserve controlUi configuration in the snapshot
+      const configWithPreservedControlUi = preserveControlUiConfig(cfg);
+
       return {
         path: configPath,
         exists: true,
         raw,
         parsed: parsedRes.parsed,
         valid: true,
-        config: cfg,
+        config: configWithPreservedControlUi,
         hash,
         issues: [],
         warnings: [],
@@ -484,7 +505,11 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
 
   async function writeConfigFile(cfg: OpenClawConfig) {
     clearConfigCache();
-    const validated = validateConfigObjectWithPlugins(cfg);
+    
+    // Preserve controlUi configuration before validation
+    const configWithPreservedControlUi = preserveControlUiConfig(cfg);
+    
+    const validated = validateConfigObjectWithPlugins(configWithPreservedControlUi);
     if (!validated.ok) {
       const issue = validated.issues[0];
       const pathLabel = issue?.path ? issue.path : "<root>";

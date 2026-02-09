@@ -449,6 +449,11 @@ export const OpenClawSchema = z
     skills: z
       .object({
         allowBundled: z.array(z.string()).optional(),
+        autoInstall: z.boolean().optional(),
+        requireUserConfirmation: z.boolean().optional(),
+        maxPerSession: z.number().int().positive().optional(),
+        verifyExecutable: z.boolean().optional(),
+        fallbackToNextCandidate: z.boolean().optional(),
         load: z
           .object({
             extraDirs: z.array(z.string()).optional(),

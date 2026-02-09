@@ -114,16 +114,6 @@ cat > "$CONFIG_FILE" << 'EOF'
   },
   "session": {
     "dmScope": "per-peer"
-  },
-  "security": {
-    "sandbox": {
-      "enabled": true,
-      "mode": "non-main"
-    },
-    "isolation": {
-      "enabled": true,
-      "scope": "per-peer"
-    }
   }
 }
 EOF
