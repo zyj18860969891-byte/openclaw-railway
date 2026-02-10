@@ -99,26 +99,36 @@ async function checkSkillExecutable(repository: string): Promise<boolean> {
       return false;
     }
     
-    // 检查是否存在 cmd.sh 或 cmd.bat
-    const possibleExecutables = [
-      path.join(tempDir, "cmd.sh"),
-      path.join(tempDir, "cmd.bat"),
-      path.join(tempDir, "run.sh"),
-      path.join(tempDir, "start.sh"),
-    ];
-    
+    // 检查是否存在 SKILL.md 文件（技能的核心文件）或可执行文件
+    const skillMdPath = path.join(tempDir, "SKILL.md");
     let hasExecutable = false;
-    for (const execPath of possibleExecutables) {
-      try {
-        if (fs.existsSync(execPath)) {
-          const stats = fs.statSync(execPath);
-          if (stats.size > 0) {
+    
+    // 首先检查 SKILL.md（标准技能格式）
+    try {
+      if (fs.existsSync(skillMdPath)) {
+        hasExecutable = true;
+      }
+    } catch (e) {
+      // 忽略检查错误
+    }
+    
+    // 如果没有 SKILL.md，检查是否有可执行文件（兼容旧格式）
+    if (!hasExecutable) {
+      const possibleExecutables = [
+        path.join(tempDir, "cmd.sh"),
+        path.join(tempDir, "cmd.bat"),
+        path.join(tempDir, "run.sh"),
+      ];
+      
+      for (const execPath of possibleExecutables) {
+        try {
+          if (fs.existsSync(execPath)) {
             hasExecutable = true;
             break;
           }
+        } catch (e) {
+          // 忽略单个文件检查错误
         }
-      } catch (e) {
-        // 忽略单个文件检查错误
       }
     }
     
@@ -462,7 +472,7 @@ function parseSkillsFindOutput(output: string): SkillSearchResult[] {
 }
 
 /**
- * 检查技能是否已安装且真正可用（有可执行文件）
+ * 检查技能是否已安装且真正可用（有 SKILL.md 文件）
  */
 export async function isSkillInstalled(skillName: string, workspaceDir: string): Promise<boolean> {
   try {
@@ -473,31 +483,34 @@ export async function isSkillInstalled(skillName: string, workspaceDir: string):
       return false;
     }
     
-    // 检查技能目录中是否有可执行文件
+    // 检查技能目录中是否有 SKILL.md 文件（技能的核心文件）
     if (!skillEntry.skill.baseDir) {
       console.warn(`Skill ${skillName} entry has no baseDir`);
       return false;
     }
     
     const skillDir = skillEntry.skill.baseDir;
+    const skillMdPath = path.join(skillDir, "SKILL.md");
+    
+    // 技能目录存在且有 SKILL.md 文件，视为已安装
+    if (fs.existsSync(skillMdPath)) {
+      return true;
+    }
+    
+    // 也检查是否有可执行文件（兼容旧格式）
     const possibleExecutables = [
       path.join(skillDir, "cmd.sh"),
       path.join(skillDir, "cmd.bat"),
       path.join(skillDir, "run.sh"),
-      path.join(skillDir, "start.sh"),
     ];
     
     for (const execPath of possibleExecutables) {
       if (fs.existsSync(execPath)) {
-        const stats = fs.statSync(execPath);
-        if (stats.size > 0) {
-          return true;
-        }
+        return true;
       }
     }
     
-    // 技能目录存在但没有可执行文件，视为未安装
-    console.warn(`Skill ${skillName} exists but has no executable file`);
+    console.warn(`Skill ${skillName} exists but has no SKILL.md or executable file`);
     return false;
   } catch (error) {
     console.error(`Error checking skill installation: ${error}`);
@@ -506,7 +519,7 @@ export async function isSkillInstalled(skillName: string, workspaceDir: string):
 }
 
 /**
- * 验证已安装的技能是否真正可用（检查是否有 cmd.sh）
+ * 验证已安装的技能是否真正可用（检查是否有 SKILL.md）
  */
 async function verifyInstalledSkill(skillName: string, workspaceDir: string): Promise<boolean> {
   try {
@@ -517,26 +530,30 @@ async function verifyInstalledSkill(skillName: string, workspaceDir: string): Pr
       return false;
     }
     
-    // 检查技能目录中是否有 cmd.sh 或 cmd.bat
+    // 检查技能目录中是否有 SKILL.md 文件
     if (!skillEntry.skill.baseDir) {
       console.warn(`Skill ${skillName} entry has no baseDir`);
       return false;
     }
     
     const skillDir = skillEntry.skill.baseDir;
+    const skillMdPath = path.join(skillDir, "SKILL.md");
+    
+    // 技能目录存在且有 SKILL.md 文件，视为有效
+    if (fs.existsSync(skillMdPath)) {
+      return true;
+    }
+    
+    // 也检查是否有可执行文件（兼容旧格式）
     const possibleExecutables = [
       path.join(skillDir, "cmd.sh"),
       path.join(skillDir, "cmd.bat"),
       path.join(skillDir, "run.sh"),
-      path.join(skillDir, "start.sh"),
     ];
     
     for (const execPath of possibleExecutables) {
       if (fs.existsSync(execPath)) {
-        const stats = fs.statSync(execPath);
-        if (stats.size > 0) {
-          return true;
-        }
+        return true;
       }
     }
     
