@@ -75,14 +75,29 @@ export function detectSkillNeeds(message: string): string[] {
  */
 async function checkSkillExecutable(repository: string): Promise<boolean> {
   try {
-    // 创建临时目录来克隆仓库
-    const tempDir = path.join(tmpdir(), `skill-check-${Date.now()}`);
-    await fs.promises.mkdir(tempDir, { recursive: true });
+    console.log(`🔍 Checking executable for ${repository}`);
+    
+    // 使用唯一的临时目录，避免并发冲突
+    const tempDir = `/tmp/skill-check-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
+    
+    // 先清理可能存在的旧目录（使用 rm -rf 避免 fs 权限问题）
+    try {
+      await runExec("rm", ["-rf", tempDir], { timeoutMs: 5000 });
+    } catch (e) {
+      // 忽略清理错误
+    }
     
     // 克隆仓库（浅克隆，只获取必要文件）
-    await runExec("git", ["clone", "--depth", "1", `https://github.com/${repository}.git`, tempDir], {
-      timeoutMs: 30000,
-    });
+    const { stdout, stderr } = await runExec(
+      "git", 
+      ["clone", "--depth", "1", `https://github.com/${repository}.git`, tempDir],
+      { timeoutMs: 30000 }
+    );
+    
+    if (stderr && stderr.includes("fatal:") && stderr.includes("already exists")) {
+      console.warn(`⚠️ Temporary directory conflict for ${repository}, skipping check`);
+      return false;
+    }
     
     // 检查是否存在 cmd.sh 或 cmd.bat
     const possibleExecutables = [
@@ -92,32 +107,37 @@ async function checkSkillExecutable(repository: string): Promise<boolean> {
       path.join(tempDir, "start.sh"),
     ];
     
+    let hasExecutable = false;
     for (const execPath of possibleExecutables) {
-      if (fs.existsSync(execPath)) {
-        // 检查文件是否可执行（非空）
-        const stats = fs.statSync(execPath);
-        if (stats.size > 0) {
-          // 清理临时目录
-          try {
-            await fs.promises.rm(tempDir, { recursive: true, force: true });
-          } catch {
-            // 忽略清理错误
+      try {
+        if (fs.existsSync(execPath)) {
+          const stats = fs.statSync(execPath);
+          if (stats.size > 0) {
+            hasExecutable = true;
+            break;
           }
-          return true;
         }
+      } catch (e) {
+        // 忽略单个文件检查错误
       }
     }
     
-    // 清理临时目录
+    // 清理临时目录（使用 rm -rf 确保清理干净）
     try {
-      await fs.promises.rm(tempDir, { recursive: true, force: true });
-    } catch {
+      await runExec("rm", ["-rf", tempDir], { timeoutMs: 5000 });
+    } catch (e) {
       // 忽略清理错误
     }
     
-    return false;
+    return hasExecutable;
   } catch (error) {
-    console.warn(`Failed to check executable for ${repository}:`, error);
+    console.warn(`Failed to check executable for ${repository}:`, error.message);
+    // 清理可能残留的临时目录
+    try {
+      await runExec("rm", ["-rf", `/tmp/skill-check-*`], { timeoutMs: 5000 });
+    } catch (e) {
+      // 忽略清理错误
+    }
     return false;
   }
 }
@@ -251,6 +271,12 @@ export async function searchSkills(
         // 解析搜索结果
         results = parseSkillsFindOutput(stdout);
         console.log(`🔍 Found ${results.length} skills for query: ${query}`);
+        
+        // 如果搜索结果为空，使用回退策略
+        if (results.length === 0) {
+          console.warn(`No results from npx skills find, trying fallback...`);
+          results = await searchWithFallback(query);
+        }
       }
       
     } catch (searchError) {
@@ -398,22 +424,36 @@ async function verifyAndSortResults(results: SkillSearchResult[]): Promise<Skill
 }
 
 /**
- * 解析 npx skills find 的输出
+ * 解析 npx skills find 的输出（增强版）
  */
 function parseSkillsFindOutput(output: string): SkillSearchResult[] {
   const results: SkillSearchResult[] = [];
   const lines = output.split('\n');
 
-  for (const line of lines) {
-    // 匹配类似：jimliu/baoyu-skills@baoyu-image-gen
-    const match = line.match(/([a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)@([a-zA-Z0-9_-]+)/);
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmedLine = line.trim();
+    
+    // 匹配第一行：owner/repo@skill-name 格式
+    const match = trimmedLine.match(/^([a-zA-Z0-9_-]+\/[a-zA-Z0-9_-]+)@([a-zA-Z0-9_-]+)$/);
     if (match) {
       const [full, repository, skillName] = match;
+      
+      // 获取下一行作为 URL（如果有）
+      let homepage = `https://skills.sh/${repository}/${skillName}`;
+      if (i + 1 < lines.length) {
+        const nextLine = lines[i + 1].trim();
+        const urlMatch = nextLine.match(/└ (.+)/);
+        if (urlMatch) {
+          homepage = urlMatch[1];
+        }
+      }
+      
       results.push({
         name: skillName,
         description: `Skill from ${repository}`,
         repository,
-        homepage: `https://skills.sh/${repository}/${skillName}`,
+        homepage,
       });
     }
   }
@@ -434,6 +474,11 @@ export async function isSkillInstalled(skillName: string, workspaceDir: string):
     }
     
     // 检查技能目录中是否有可执行文件
+    if (!skillEntry.path) {
+      console.warn(`Skill ${skillName} entry has no path`);
+      return false;
+    }
+    
     const skillDir = skillEntry.path;
     const possibleExecutables = [
       path.join(skillDir, "cmd.sh"),
@@ -473,6 +518,11 @@ async function verifyInstalledSkill(skillName: string, workspaceDir: string): Pr
     }
     
     // 检查技能目录中是否有 cmd.sh 或 cmd.bat
+    if (!skillEntry.path) {
+      console.warn(`Skill ${skillName} entry has no path`);
+      return false;
+    }
+    
     const skillDir = skillEntry.path;
     const possibleExecutables = [
       path.join(skillDir, "cmd.sh"),
