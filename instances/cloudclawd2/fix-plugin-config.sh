@@ -133,21 +133,21 @@ echo "✅ 配置文件已生成"
 echo "配置内容预览："
 cat "$CONFIG_FILE" | head -20
 
-# 设置环境变量
-export OPENCLAW_STATE_DIR="/data/openclaw"
-export OPENCLAW_WORKSPACE_DIR="/tmp/workspace"
-export OPENCLAW_CONFIG_PATH="/data/openclaw/openclaw.json"
+# 设置环境变量（使用 Railway 环境变量或默认值）
+export OPENCLAW_STATE_DIR="${OPENCLAW_STATE_DIR:-/data/openclaw}"
+export OPENCLAW_WORKSPACE_DIR="${OPENCLAW_WORKSPACE_DIR:-/tmp/workspace}"
+export OPENCLAW_CONFIG_PATH="${OPENCLAW_CONFIG_PATH:-/data/openclaw/openclaw.json}"
 # 确保持久化目录存在
 mkdir -p "/data/openclaw"
-# 禁用自动技能安装功能（Railway 环境不支持 npx skills）
-export OPENCLAW_SKILLS_AUTO_INSTALL="false"
-export OPENCLAW_SKILLS_REQUIRE_CONFIRMATION="false"
-export OPENCLAW_SKILLS_MAX_PER_SESSION="3"
-# 启用浏览器功能（Railway 容器已安装 Chromium）
-export OPENCLAW_BROWSER_ENABLED="true"
-export OPENCLAW_BROWSER_EXECUTABLE="/usr/bin/chromium"
-export OPENCLAW_BROWSER_HEADLESS="true"
-export OPENCLAW_BROWSER_NO_SANDBOX="true"
+# 技能配置（从 Railway 环境变量读取，默认启用）
+export OPENCLAW_SKILLS_AUTO_INSTALL="${OPENCLAW_SKILLS_AUTO_INSTALL:-true}"
+export OPENCLAW_SKILLS_REQUIRE_CONFIRMATION="${OPENCLAW_SKILLS_REQUIRE_CONFIRMATION:-false}"
+export OPENCLAW_SKILLS_MAX_PER_SESSION="${OPENCLAW_SKILLS_MAX_PER_SESSION:-3}"
+# 浏览器配置（从 Railway 环境变量读取，默认启用）
+export OPENCLAW_BROWSER_ENABLED="${OPENCLAW_BROWSER_ENABLED:-true}"
+export OPENCLAW_BROWSER_EXECUTABLE="${OPENCLAW_BROWSER_EXECUTABLE:-/usr/bin/chromium}"
+export OPENCLAW_BROWSER_HEADLESS="${OPENCLAW_BROWSER_HEADLESS:-true}"
+export OPENCLAW_BROWSER_NO_SANDBOX="${OPENCLAW_BROWSER_NO_SANDBOX:-true}"
 
 # 预复制内置技能到工作区
 echo "=== 预复制内置技能 ==="
@@ -173,7 +173,7 @@ fi
 echo "=== 环境变量已设置 ==="
 echo "OPENCLAW_WORKSPACE_DIR: $OPENCLAW_WORKSPACE_DIR"
 echo "OPENCLAW_CONFIG_PATH: $OPENCLAW_CONFIG_PATH"
-echo "OPENCLAW_SKILLS_AUTO_INSTALL: $OPENCLAW_SKILLS_AUTO_INSTALL (disabled for Railway)"
+echo "OPENCLAW_SKILLS_AUTO_INSTALL: $OPENCLAW_SKILLS_AUTO_INSTALL"
 echo "OPENCLAW_BROWSER_ENABLED: $OPENCLAW_BROWSER_ENABLED (Chromium headless mode)"
 echo "持久化配置目录: /data/openclaw"
 echo "持久化技能目录: $SKILLS_PERSISTENT_DIR"
