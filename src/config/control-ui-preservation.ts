@@ -14,6 +14,9 @@ const DEFAULT_CONTROL_UI_CONFIG = {
   dangerouslyDisableDeviceAuth: true,
 };
 
+// Global flag to prevent repeated logging
+let __controlUiLogged = false;
+
 /**
  * Preserve or restore controlUi configuration in the given config
  * This ensures that even if config.save operations remove the controlUi config,
@@ -29,7 +32,9 @@ export function preserveControlUiConfig(config: OpenClawConfig): OpenClawConfig 
   
   // Preserve or restore controlUi configuration
   if (!result.gateway.controlUi) {
-    console.log("🔧 Control UI config missing, restoring with defaults...");
+    if (!__controlUiLogged) {
+      console.log("🔧 Control UI config missing, restoring with defaults...");
+    }
     result.gateway.controlUi = { ...DEFAULT_CONTROL_UI_CONFIG };
   } else {
     // Ensure required settings are present
@@ -43,7 +48,11 @@ export function preserveControlUiConfig(config: OpenClawConfig): OpenClawConfig 
     };
   }
   
-  console.log("✅ Control UI configuration preserved:", result.gateway.controlUi);
+  // Only log once during application startup
+  if (!__controlUiLogged) {
+    console.log("✅ Control UI configuration preserved:", result.gateway.controlUi);
+    __controlUiLogged = true;
+  }
   return result;
 }
 

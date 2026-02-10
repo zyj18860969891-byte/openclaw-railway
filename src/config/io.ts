@@ -301,15 +301,16 @@ export function createConfigIO(overrides: ConfigIoDeps = {}) {
       // Preserve controlUi configuration to prevent pairing issues
       const finalConfig = preserveControlUiConfig(configWithOverrides);
       
-      // Log controlUi status for debugging
-      if (!isControlUiConfigured(finalConfig)) {
-        deps.logger.warn(
-          "Control UI configuration is not properly set up. " +
-          "This may cause pairing issues. " +
-          "Expected: { enabled: true, allowInsecureAuth: true, dangerouslyDisableDeviceAuth: true }"
-        );
-      } else {
-        deps.logger.info("Control UI configuration is properly set up");
+      // Log controlUi status for debugging - only once per application startup
+      if (!globalThis.__controlUiStatusLogged) {
+        if (!isControlUiConfigured(finalConfig)) {
+          deps.logger.warn(
+            "Control UI configuration is not properly set up. " +
+            "This may cause pairing issues. " +
+            "Expected: { enabled: true, allowInsecureAuth: true, dangerouslyDisableDeviceAuth: true }"
+          );
+        }
+        globalThis.__controlUiStatusLogged = true;
       }
       
       return finalConfig;
@@ -660,4 +661,9 @@ export async function readConfigFileSnapshot(): Promise<ConfigFileSnapshot> {
 export async function writeConfigFile(cfg: OpenClawConfig): Promise<void> {
   clearConfigCache();
   await createConfigIO().writeConfigFile(cfg);
+}
+
+// Global flag to prevent repeated logging
+declare global {
+  var __controlUiStatusLogged: boolean | undefined;
 }

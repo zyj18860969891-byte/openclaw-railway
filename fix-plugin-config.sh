@@ -3,11 +3,13 @@
 echo "=== 修复插件配置 ==="
 echo "时间: $(date)"
 
-CONFIG_FILE="/tmp/openclaw/openclaw.json"
+CONFIG_FILE="/data/openclaw/openclaw.json"
 WORKSPACE_EXTENSIONS="/tmp/workspace/.openclaw/extensions"
 
 # 确保工作区扩展目录存在
 mkdir -p "$WORKSPACE_EXTENSIONS"
+# 确保持久化目录存在
+mkdir -p "/data/openclaw"
 
 # 检查插件是否已复制
 echo "=== 检查插件复制状态 ==="
@@ -67,6 +69,9 @@ cat > "$CONFIG_FILE" << 'EOF'
       "basePath": "/"
     }
   },
+  "browser": {
+    "enabled": false
+  },
   "canvasHost": {
     "enabled": true
   },
@@ -104,7 +109,7 @@ cat > "$CONFIG_FILE" << 'EOF'
     }
   },
   "skills": {
-    "autoInstall": true,
+    "autoInstall": false,
     "requireUserConfirmation": false,
     "maxPerSession": 3,
     "install": {
@@ -122,19 +127,45 @@ echo "配置内容预览："
 cat "$CONFIG_FILE" | head -20
 
 # 设置环境变量
-export OPENCLAW_STATE_DIR="/tmp/openclaw"
+export OPENCLAW_STATE_DIR="/data/openclaw"
 export OPENCLAW_WORKSPACE_DIR="/tmp/workspace"
-export OPENCLAW_CONFIG_PATH="/tmp/openclaw/openclaw.json"
-# 启用自动技能安装功能
-export OPENCLAW_SKILLS_AUTO_INSTALL="true"
+export OPENCLAW_CONFIG_PATH="/data/openclaw/openclaw.json"
+# 确保持久化目录存在
+mkdir -p "/data/openclaw"
+# 禁用自动技能安装功能（Railway 环境不支持 npx skills）
+export OPENCLAW_SKILLS_AUTO_INSTALL="false"
 export OPENCLAW_SKILLS_REQUIRE_CONFIRMATION="false"
 export OPENCLAW_SKILLS_MAX_PER_SESSION="3"
+# 禁用浏览器功能（Railway 容器无浏览器）
+export OPENCLAW_BROWSER_ENABLED="false"
+
+# 预复制内置技能到工作区
+echo "=== 预复制内置技能 ==="
+SKILLS_SOURCE_DIR="/app/skills"
+SKILLS_WORKSPACE_DIR="/tmp/workspace/.openclaw/skills"
+SKILLS_PERSISTENT_DIR="/data/openclaw/skills"
+
+if [ -d "$SKILLS_SOURCE_DIR" ]; then
+    mkdir -p "$SKILLS_WORKSPACE_DIR"
+    mkdir -p "$SKILLS_PERSISTENT_DIR"
+    # 复制内置技能到工作区和持久化目录
+    cp -r "$SKILLS_SOURCE_DIR"/* "$SKILLS_WORKSPACE_DIR/" 2>/dev/null || true
+    cp -r "$SKILLS_SOURCE_DIR"/* "$SKILLS_PERSISTENT_DIR/" 2>/dev/null || true
+    echo "✅ 内置技能已复制到工作区和持久化目录"
+    echo "工作区技能目录: $SKILLS_WORKSPACE_DIR"
+    echo "持久化技能目录: $SKILLS_PERSISTENT_DIR"
+    ls -la "$SKILLS_WORKSPACE_DIR" | head -10
+    ls -la "$SKILLS_PERSISTENT_DIR" | head -10
+else
+    echo "⚠️ 内置技能目录不存在: $SKILLS_SOURCE_DIR"
+fi
 
 echo "=== 环境变量已设置 ==="
 echo "OPENCLAW_WORKSPACE_DIR: $OPENCLAW_WORKSPACE_DIR"
 echo "OPENCLAW_CONFIG_PATH: $OPENCLAW_CONFIG_PATH"
-echo "OPENCLAW_SKILLS_AUTO_INSTALL: $OPENCLAW_SKILLS_AUTO_INSTALL"
-echo "OPENCLAW_SKILLS_REQUIRE_CONFIRMATION: $OPENCLAW_SKILLS_REQUIRE_CONFIRMATION"
-echo "OPENCLAW_SKILLS_MAX_PER_SESSION: $OPENCLAW_SKILLS_MAX_PER_SESSION"
+echo "OPENCLAW_SKILLS_AUTO_INSTALL: $OPENCLAW_SKILLS_AUTO_INSTALL (disabled for Railway)"
+echo "OPENCLAW_BROWSER_ENABLED: $OPENCLAW_BROWSER_ENABLED (disabled for Railway)"
+echo "持久化配置目录: /data/openclaw"
+echo "持久化技能目录: $SKILLS_PERSISTENT_DIR"
 
 echo "=== 修复完成 ==="

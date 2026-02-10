@@ -474,12 +474,12 @@ export async function isSkillInstalled(skillName: string, workspaceDir: string):
     }
     
     // 检查技能目录中是否有可执行文件
-    if (!skillEntry.path) {
-      console.warn(`Skill ${skillName} entry has no path`);
+    if (!skillEntry.skill.baseDir) {
+      console.warn(`Skill ${skillName} entry has no baseDir`);
       return false;
     }
     
-    const skillDir = skillEntry.path;
+    const skillDir = skillEntry.skill.baseDir;
     const possibleExecutables = [
       path.join(skillDir, "cmd.sh"),
       path.join(skillDir, "cmd.bat"),
@@ -518,12 +518,12 @@ async function verifyInstalledSkill(skillName: string, workspaceDir: string): Pr
     }
     
     // 检查技能目录中是否有 cmd.sh 或 cmd.bat
-    if (!skillEntry.path) {
-      console.warn(`Skill ${skillName} entry has no path`);
+    if (!skillEntry.skill.baseDir) {
+      console.warn(`Skill ${skillName} entry has no baseDir`);
       return false;
     }
     
-    const skillDir = skillEntry.path;
+    const skillDir = skillEntry.skill.baseDir;
     const possibleExecutables = [
       path.join(skillDir, "cmd.sh"),
       path.join(skillDir, "cmd.bat"),

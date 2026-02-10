@@ -92,6 +92,26 @@ export function applyEnvPriorityToChannels(config: OpenClawConfig, env: NodeJS.P
     configWithPriority.agents.defaults.model = { primary: modelValue };
   }
 
+  // Handle browser enabled/disabled from environment variable
+  const browserEnabledEnv = env.OPENCLAW_BROWSER_ENABLED;
+  if (browserEnabledEnv !== undefined) {
+    const browserEnabled = browserEnabledEnv === "true" || browserEnabledEnv === "1";
+    if (!configWithPriority.browser) {
+      configWithPriority.browser = {};
+    }
+    configWithPriority.browser.enabled = browserEnabled;
+  }
+
+  // Handle skills auto-install from environment variable
+  const skillsAutoInstallEnv = env.OPENCLAW_SKILLS_AUTO_INSTALL;
+  if (skillsAutoInstallEnv !== undefined) {
+    const autoInstall = skillsAutoInstallEnv === "true" || skillsAutoInstallEnv === "1";
+    if (!configWithPriority.skills) {
+      configWithPriority.skills = {};
+    }
+    configWithPriority.skills.autoInstall = autoInstall;
+  }
+
   return configWithPriority;
 }
 
