@@ -1,0 +1,72 @@
+# OpenClaw Railway 部署配置 - cloudclawd2
+# 创建时间: 2026-02-11 03:39
+
+[build]
+  builder = "dockerfile"
+  dockerfilePath = "Dockerfile.railway"
+  context = "."
+
+  [build.args]
+  FEISHU_ENABLED = "true"
+  DINGTALK_ENABLED = "true"
+  WECOM_ENABLED = "false"
+  TELEGRAM_ENABLED = "false"
+  DISCORD_ENABLED = "false"
+  SLACK_ENABLED = "false"
+  CACHE_BUST = "20260211033900"
+
+[deploy]
+  startCommand = "bash -c 'echo \"=== cloudclawd2 启动 ===\"; /app/fix-plugin-config.sh; export OPENCLAW_CONFIG_PATH=/data/openclaw/openclaw.json; exec node dist/index.js gateway --allow-unconfigured --auth token --bind lan --port ${PORT:-8080}'"
+  restartPolicyType = "always"
+  restartPolicyMaxRetries = 10
+
+[env]
+  # === 基础配置 ===
+  NODE_ENV = "production"
+  RAILWAY_ENVIRONMENT = "production"
+  MODEL_NAME = "openrouter/stepfun/step-3.5-flash:free"
+  
+  # === 通道开关 ===
+  FEISHU_ENABLED = "true"
+  DINGTALK_ENABLED = "true"
+  WECOM_ENABLED = "false"
+  
+  # === Gateway 认证 ===
+  GATEWAY_AUTH_MODE = "token"
+  OPENCLAW_GATEWAY_TOKEN = "cloudclawd2Token2026SecureKey987654321"
+  
+  # === Gateway 配置 ===
+  GATEWAY_TRUSTED_PROXIES = "100.64.0.0/10,127.0.0.1/32"
+  GATEWAY_BIND = "lan"
+  DM_SCOPE = "per-peer"
+  
+  # === WebSocket 配置 ===
+  GATEWAY_WEBSOCKET_TIMEOUT = "3600000"
+  GATEWAY_WEBSOCKET_MAX_CONNECTIONS = "100"
+  GATEWAY_WEBSOCKET_HEARTBEAT = "30000"
+  
+  # === 资源限制 ===
+  GATEWAY_RATE_LIMIT = "200/minute"
+  GATEWAY_CONCURRENT_CONNECTIONS = "100"
+  GATEWAY_MESSAGE_QUEUE_SIZE = "3000"
+  GATEWAY_SESSION_CLEANUP_INTERVAL = "300000"
+  
+  # === 技能配置 ===
+  OPENCLAW_SKILLS_AUTO_INSTALL = "false"
+  OPENCLAW_SKILLS_REQUIRE_CONFIRMATION = "false"
+  OPENCLAW_SKILLS_MAX_PER_SESSION = "3"
+  
+  # === 浏览器配置 ===
+  OPENCLAW_BROWSER_ENABLED = "true"
+  OPENCLAW_BROWSER_EXECUTABLE = "/usr/bin/chromium"
+  OPENCLAW_BROWSER_HEADLESS = "true"
+  OPENCLAW_BROWSER_NO_SANDBOX = "true"
+  
+  # === 日志配置 ===
+  LOG_LEVEL = "info"
+  OPENCLAW_LOGGING_LEVEL = "info"
+  
+  # === 持久化配置 ===
+  OPENCLAW_STATE_DIR = "/data/openclaw"
+  OPENCLAW_WORKSPACE_DIR = "/tmp/workspace"
+  OPENCLAW_CONFIG_PATH = "/data/openclaw/openclaw.json"

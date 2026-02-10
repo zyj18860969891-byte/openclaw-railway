@@ -1,0 +1,119 @@
+# cloudclawd2 服务环境变量配置清单
+# 在 Railway Dashboard → Variables 中添加以下变量
+
+## ============================================
+## 📋 快速复制版（直接复制到 Railway Variables）
+## ============================================
+##
+## NODE_ENV=production
+## RAILWAY_ENVIRONMENT=production
+## MODEL_NAME=openrouter/stepfun/step-3.5-flash:free
+## GATEWAY_AUTH_MODE=token
+## OPENCLAW_GATEWAY_TOKEN=cloudclawd2Token2026SecureKey987654321
+## FEISHU_ENABLED=true
+## DINGTALK_ENABLED=true
+## WECOM_ENABLED=false
+## TELEGRAM_ENABLED=false
+## DISCORD_ENABLED=false
+## SLACK_ENABLED=false
+## FEISHU_APP_ID=YOUR_FEISHU_APP_ID
+## FEISHU_APP_SECRET=YOUR_FEISHU_APP_SECRET
+## DINGTALK_CLIENT_ID=YOUR_DINGTALK_CLIENT_ID
+## DINGTALK_CLIENT_SECRET=YOUR_DINGTALK_CLIENT_SECRET
+## GATEWAY_BIND=lan
+## GATEWAY_TRUSTED_PROXIES=100.64.0.0/10,127.0.0.1/32
+## DM_SCOPE=per-peer
+## GATEWAY_WEBSOCKET_TIMEOUT=3600000
+## GATEWAY_WEBSOCKET_MAX_CONNECTIONS=100
+## GATEWAY_WEBSOCKET_HEARTBEAT=30000
+## GATEWAY_RATE_LIMIT=200/minute
+## GATEWAY_CONCURRENT_CONNECTIONS=100
+## GATEWAY_MESSAGE_QUEUE_SIZE=3000
+## GATEWAY_SESSION_CLEANUP_INTERVAL=300000
+## OPENCLAW_BROWSER_ENABLED=true
+## OPENCLAW_BROWSER_EXECUTABLE=/usr/bin/chromium
+## OPENCLAW_BROWSER_HEADLESS=true
+## OPENCLAW_BROWSER_NO_SANDBOX=true
+## OPENCLAW_SKILLS_AUTO_INSTALL=false
+## OPENCLAW_SKILLS_REQUIRE_CONFIRMATION=false
+## OPENCLAW_SKILLS_MAX_PER_SESSION=3
+## LOG_LEVEL=info
+## OPENCLAW_LOGGING_LEVEL=info
+## OPENCLAW_STATE_DIR=/data/openclaw
+## OPENCLAW_WORKSPACE_DIR=/tmp/workspace
+## OPENCLAW_CONFIG_PATH=/data/openclaw/openclaw.json
+##
+## ============================================
+
+## ============================================
+## 必需配置（必须手动设置）
+## ============================================
+
+# === 基础配置 ===
+NODE_ENV=production
+RAILWAY_ENVIRONMENT=production
+MODEL_NAME=openrouter/stepfun/step-3.5-flash:free
+
+# === Gateway 认证 ===
+GATEWAY_AUTH_MODE=token
+OPENCLAW_GATEWAY_TOKEN=cloudclawd2Token2026SecureKey987654321
+
+# === 通道开关 ===
+FEISHU_ENABLED=true
+DINGTALK_ENABLED=true
+WECOM_ENABLED=false
+TELEGRAM_ENABLED=false
+DISCORD_ENABLED=false
+SLACK_ENABLED=false
+
+## ============================================
+## ⚠️ 用户凭证配置（需要新用户填写）
+## ============================================
+
+# === 飞书凭证 ===
+FEISHU_APP_ID=YOUR_FEISHU_APP_ID
+FEISHU_APP_SECRET=YOUR_FEISHU_APP_SECRET
+
+# === 钉钉凭证 ===
+DINGTALK_CLIENT_ID=YOUR_DINGTALK_CLIENT_ID
+DINGTALK_CLIENT_SECRET=YOUR_DINGTALK_CLIENT_SECRET
+
+## ============================================
+## 系统配置（保持默认即可）
+## ============================================
+
+# === Gateway 配置 ===
+GATEWAY_BIND=lan
+GATEWAY_TRUSTED_PROXIES=100.64.0.0/10,127.0.0.1/32
+DM_SCOPE=per-peer
+
+# === WebSocket 配置 ===
+GATEWAY_WEBSOCKET_TIMEOUT=3600000
+GATEWAY_WEBSOCKET_MAX_CONNECTIONS=100
+GATEWAY_WEBSOCKET_HEARTBEAT=30000
+
+# === 资源限制 ===
+GATEWAY_RATE_LIMIT=200/minute
+GATEWAY_CONCURRENT_CONNECTIONS=100
+GATEWAY_MESSAGE_QUEUE_SIZE=3000
+GATEWAY_SESSION_CLEANUP_INTERVAL=300000
+
+# === 浏览器配置 ===
+OPENCLAW_BROWSER_ENABLED=true
+OPENCLAW_BROWSER_EXECUTABLE=/usr/bin/chromium
+OPENCLAW_BROWSER_HEADLESS=true
+OPENCLAW_BROWSER_NO_SANDBOX=true
+
+# === 技能配置 ===
+OPENCLAW_SKILLS_AUTO_INSTALL=false
+OPENCLAW_SKILLS_REQUIRE_CONFIRMATION=false
+OPENCLAW_SKILLS_MAX_PER_SESSION=3
+
+# === 日志配置 ===
+LOG_LEVEL=info
+OPENCLAW_LOGGING_LEVEL=info
+
+# === 持久化配置 ===
+OPENCLAW_STATE_DIR=/data/openclaw
+OPENCLAW_WORKSPACE_DIR=/tmp/workspace
+OPENCLAW_CONFIG_PATH=/data/openclaw/openclaw.json
