@@ -102,6 +102,35 @@ export function applyEnvPriorityToChannels(config: OpenClawConfig, env: NodeJS.P
     configWithPriority.browser.enabled = browserEnabled;
   }
 
+  // Handle browser executable path from environment variable
+  const browserExecutableEnv = env.OPENCLAW_BROWSER_EXECUTABLE;
+  if (browserExecutableEnv !== undefined && browserExecutableEnv.trim()) {
+    if (!configWithPriority.browser) {
+      configWithPriority.browser = {};
+    }
+    configWithPriority.browser.executablePath = browserExecutableEnv.trim();
+  }
+
+  // Handle browser headless mode from environment variable
+  const browserHeadlessEnv = env.OPENCLAW_BROWSER_HEADLESS;
+  if (browserHeadlessEnv !== undefined) {
+    const headless = browserHeadlessEnv === "true" || browserHeadlessEnv === "1";
+    if (!configWithPriority.browser) {
+      configWithPriority.browser = {};
+    }
+    configWithPriority.browser.headless = headless;
+  }
+
+  // Handle browser no-sandbox mode from environment variable
+  const browserNoSandboxEnv = env.OPENCLAW_BROWSER_NO_SANDBOX;
+  if (browserNoSandboxEnv !== undefined) {
+    const noSandbox = browserNoSandboxEnv === "true" || browserNoSandboxEnv === "1";
+    if (!configWithPriority.browser) {
+      configWithPriority.browser = {};
+    }
+    configWithPriority.browser.noSandbox = noSandbox;
+  }
+
   // Handle skills auto-install from environment variable
   const skillsAutoInstallEnv = env.OPENCLAW_SKILLS_AUTO_INSTALL;
   if (skillsAutoInstallEnv !== undefined) {

@@ -70,7 +70,10 @@ cat > "$CONFIG_FILE" << 'EOF'
     }
   },
   "browser": {
-    "enabled": false
+    "enabled": true,
+    "executablePath": "/usr/bin/chromium",
+    "headless": true,
+    "noSandbox": true
   },
   "canvasHost": {
     "enabled": true
@@ -136,8 +139,11 @@ mkdir -p "/data/openclaw"
 export OPENCLAW_SKILLS_AUTO_INSTALL="false"
 export OPENCLAW_SKILLS_REQUIRE_CONFIRMATION="false"
 export OPENCLAW_SKILLS_MAX_PER_SESSION="3"
-# 禁用浏览器功能（Railway 容器无浏览器）
-export OPENCLAW_BROWSER_ENABLED="false"
+# 启用浏览器功能（Railway 容器已安装 Chromium）
+export OPENCLAW_BROWSER_ENABLED="true"
+export OPENCLAW_BROWSER_EXECUTABLE="/usr/bin/chromium"
+export OPENCLAW_BROWSER_HEADLESS="true"
+export OPENCLAW_BROWSER_NO_SANDBOX="true"
 
 # 预复制内置技能到工作区
 echo "=== 预复制内置技能 ==="
@@ -164,7 +170,7 @@ echo "=== 环境变量已设置 ==="
 echo "OPENCLAW_WORKSPACE_DIR: $OPENCLAW_WORKSPACE_DIR"
 echo "OPENCLAW_CONFIG_PATH: $OPENCLAW_CONFIG_PATH"
 echo "OPENCLAW_SKILLS_AUTO_INSTALL: $OPENCLAW_SKILLS_AUTO_INSTALL (disabled for Railway)"
-echo "OPENCLAW_BROWSER_ENABLED: $OPENCLAW_BROWSER_ENABLED (disabled for Railway)"
+echo "OPENCLAW_BROWSER_ENABLED: $OPENCLAW_BROWSER_ENABLED (Chromium headless mode)"
 echo "持久化配置目录: /data/openclaw"
 echo "持久化技能目录: $SKILLS_PERSISTENT_DIR"
 
