@@ -28,8 +28,16 @@ export const CHANNEL_ENV_VARS: Record<string, string> = {
 export function applyEnvPriorityToChannels(config: OpenClawConfig, env: NodeJS.ProcessEnv): OpenClawConfig {
   const configWithPriority = { ...config };
 
-  console.log(`[env-priority] applyEnvPriorityToChannels called`);
-  console.log(`[env-priority] Initial config channels:`, JSON.stringify(configWithPriority.channels, null, 2));
+  // Reduce logging - only log once per application startup
+  const logOnce = (() => {
+    let logged = false;
+    return () => {
+      if (!logged) {
+        console.log(`[env-priority] Applying environment variable priority`);
+        logged = true;
+      }
+    };
+  })();
 
   // Ensure channels section exists
   if (!configWithPriority.channels) {
@@ -44,10 +52,9 @@ export function applyEnvPriorityToChannels(config: OpenClawConfig, env: NodeJS.P
       const shouldBeEnabled = envValue === "true" || envValue === "1";
       const currentEnabled = (configWithPriority.channels?.[channel] as any)?.enabled;
       
-      console.log(`[env-priority] Channel ${channel}: env=${envValue}, current=${currentEnabled}, should=${shouldBeEnabled}`);
-      
       // Override config file setting with environment variable
       if (currentEnabled !== shouldBeEnabled) {
+        logOnce();
         if (!configWithPriority.channels) {
           configWithPriority.channels = {};
         }
@@ -55,7 +62,6 @@ export function applyEnvPriorityToChannels(config: OpenClawConfig, env: NodeJS.P
           ...(configWithPriority.channels[channel] as any),
           enabled: shouldBeEnabled,
         };
-        console.log(`[env-priority] Set ${channel}.enabled to ${shouldBeEnabled}`);
       }
     }
   });
@@ -69,7 +75,6 @@ export function applyEnvPriorityToChannels(config: OpenClawConfig, env: NodeJS.P
         configWithPriority.gateway = {};
       }
       configWithPriority.gateway.trustedProxies = proxies;
-      console.log(`[env-priority] Set gateway.trustedProxies to: ${proxies.join(', ')}`);
     }
   }
 
@@ -85,12 +90,7 @@ export function applyEnvPriorityToChannels(config: OpenClawConfig, env: NodeJS.P
     const modelValue = modelNameEnv.trim();
     // Set model as object with primary field to match expected schema
     configWithPriority.agents.defaults.model = { primary: modelValue };
-    console.log(`[env-priority] Set agents.defaults.model.primary to: ${modelValue}`);
   }
-
-  console.log(`[env-priority] Final config channels:`, JSON.stringify(configWithPriority.channels, null, 2));
-  console.log(`[env-priority] Final config gateway:`, JSON.stringify(configWithPriority.gateway, null, 2));
-  console.log(`[env-priority] Final config agents:`, JSON.stringify(configWithPriority.agents, null, 2));
 
   return configWithPriority;
 }
@@ -112,31 +112,23 @@ export function shouldApplyEnvPriority(env: NodeJS.ProcessEnv): boolean {
  */
 export function applyEnvPriorityIfNeeded(config: OpenClawConfig, env: NodeJS.ProcessEnv): OpenClawConfig {
   const shouldApply = shouldApplyEnvPriority(env);
-  console.log(`[env-priority] shouldApplyEnvPriority: ${shouldApply}`);
-  console.log(`[env-priority] NODE_ENV: ${env.NODE_ENV}`);
-  console.log(`[env-priority] RAILWAY_ENVIRONMENT: ${env.RAILWAY_ENVIRONMENT}`);
-  console.log(`[env-priority] APPLY_ENV_PRIORITY: ${env.APPLY_ENV_PRIORITY}`);
   
   if (shouldApply) {
-    console.log(`[env-priority] Applying environment variable priority in ${env.NODE_ENV || "unknown"} environment`);
-    
-    // Log gateway trusted proxies before applying
-    if (env.GATEWAY_TRUSTED_PROXIES) {
-      console.log(`[env-priority] GATEWAY_TRUSTED_PROXIES: ${env.GATEWAY_TRUSTED_PROXIES}`);
+    // Only log once during startup
+    if (!globalThis.__envPriorityApplied) {
+      console.log(`[env-priority] Applying environment variable priority in production`);
+      globalThis.__envPriorityApplied = true;
     }
     
     const result = applyEnvPriorityToChannels(config, env);
     
-    // Log gateway trusted proxies after applying
-    if (result.gateway?.trustedProxies) {
-      console.log(`[env-priority] gateway.trustedProxies after applying: ${result.gateway.trustedProxies.join(', ')}`);
-    } else {
-      console.log(`[env-priority] gateway.trustedProxies not set in result`);
-    }
-    
     return result;
   }
   
-  console.log(`[env-priority] Environment variable priority disabled in ${env.NODE_ENV || "unknown"} environment`);
   return config;
+}
+
+// Global flag to track if env priority has been applied
+declare global {
+  var __envPriorityApplied: boolean | undefined;
 }

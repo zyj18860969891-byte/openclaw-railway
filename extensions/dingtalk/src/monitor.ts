@@ -107,7 +107,24 @@ export async function monitorDingtalkProvider(opts: MonitorDingtalkOpts = {}): P
         currentPromise = null;
       }
       try {
-        client.disconnect();
+        // Only disconnect if client exists and has an open connection
+        // Check if the client has a connected WebSocket before attempting disconnect
+        if (client && typeof (client as any).isConnected === 'function') {
+          if ((client as any).isConnected()) {
+            client.disconnect();
+          }
+        } else {
+          // Fallback: try to disconnect but catch any errors
+          try {
+            client.disconnect();
+          } catch (disconnectErr) {
+            // Ignore "not connected" errors during cleanup
+            const errMsg = String(disconnectErr);
+            if (!errMsg.includes('closed') && !errMsg.includes('not connected')) {
+              logger.error(`failed to disconnect client: ${errMsg}`);
+            }
+          }
+        }
       } catch (err) {
         logger.error(`failed to disconnect client: ${String(err)}`);
       }
