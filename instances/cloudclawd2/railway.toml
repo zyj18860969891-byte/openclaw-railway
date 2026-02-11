@@ -3,7 +3,8 @@
 
 [build]
   builder = "dockerfile"
-  dockerfilePath = "Dockerfile.railway"
+  # Dockerfile 在此目录，但构建上下文指向根目录以访问源代码
+  dockerfilePath = "instances/cloudclawd2/Dockerfile.railway"
   context = "."
 
   [build.args]

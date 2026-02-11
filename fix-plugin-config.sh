@@ -116,12 +116,28 @@ cat > "$CONFIG_FILE" << EOF
     }
   },
   "skills": {
+    "enabled": true,
     "autoInstall": ${OPENCLAW_SKILLS_AUTO_INSTALL:-true},
     "requireUserConfirmation": ${OPENCLAW_SKILLS_REQUIRE_CONFIRMATION:-false},
     "maxPerSession": ${OPENCLAW_SKILLS_MAX_PER_SESSION:-3},
+    "sources": [
+      {
+        "type": "cli",
+        "command": "npx skills add",
+        "registry": "https://skills.sh",
+        "enabled": true
+      },
+      {
+        "type": "clawdhub",
+        "command": "clawdhub install",
+        "registry": "https://clawdhub.com",
+        "enabled": true
+      }
+    ],
     "install": {
       "nodeManager": "npm"
-    }
+    },
+    "installPath": "/data/openclaw/skills"
   },
   "session": {
     "dmScope": "per-peer"
