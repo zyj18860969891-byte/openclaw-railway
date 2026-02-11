@@ -14,7 +14,7 @@
   TELEGRAM_ENABLED = "false"
   DISCORD_ENABLED = "false"
   SLACK_ENABLED = "false"
-  CACHE_BUST = "20260212000000"
+  CACHE_BUST = "20260212001000"
 
 [deploy]
   startCommand = "bash -c 'echo \"=== cloudclawd2 启动 ===\"; /app/fix-plugin-config.sh; export OPENCLAW_CONFIG_PATH=/data/openclaw/openclaw.json; exec node dist/index.js gateway --allow-unconfigured --auth token --bind lan --port ${PORT:-8080}'"
