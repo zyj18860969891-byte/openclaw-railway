@@ -23,9 +23,18 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
-# 设置 Chromium 环境变量
+# 设置 Chromium 环境变量 - 验证实际路径
+RUN echo "=== Checking Chromium installation ===" && \
+    which chromium || which chromium-browser || echo "Chromium not found in PATH" && \
+    ls -la /usr/bin/chrom* 2>/dev/null || echo "No chromium binaries in /usr/bin"
 ENV CHROMIUM_PATH=/usr/bin/chromium
 ENV CHROMIUM_FLAGS="--no-sandbox --disable-gpu --disable-dev-shm-usage --headless"
+
+# 安装 clawdhub 全局工具及其依赖
+RUN npm install -g clawdhub undici && \
+    echo "=== Verifying clawdhub installation ===" && \
+    which clawdhub && \
+    npm list -g clawdhub undici
 
 # 复制依赖文件以获得更好的缓存
 COPY package.json ./package.json

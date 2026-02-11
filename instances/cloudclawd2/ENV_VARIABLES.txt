@@ -8,6 +8,7 @@
 NODE_ENV=production
 RAILWAY_ENVIRONMENT=production
 MODEL_NAME=openrouter/stepfun/step-3.5-flash:free
+OPENROUTER_API_KEY=YOUR_OPENROUTER_API_KEY
 GATEWAY_AUTH_MODE=token
 OPENCLAW_GATEWAY_TOKEN=cloudclawd2Token2026SecureKey987654321
 FEISHU_ENABLED=true
@@ -69,6 +70,9 @@ SLACK_ENABLED=false
 ## ============================================
 ## ⚠️ 用户凭证配置（需要新用户填写）
 ## ============================================
+
+# === AI 模型配置 ===
+OPENROUTER_API_KEY=YOUR_OPENROUTER_API_KEY
 
 # === 飞书凭证 ===
 FEISHU_APP_ID=YOUR_FEISHU_APP_ID

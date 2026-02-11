@@ -20,12 +20,28 @@ EXPOSE 8080
 ARG CACHE_BUST=2026-02-09-CONTROL-UI-FIX-V1
 
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
-RUN if [ -n "$OPENCLAW_DOCKER_APT_PACKAGES" ]; then \
-      apt-get update && \
-      DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $OPENCLAW_DOCKER_APT_PACKAGES && \
-      apt-get clean && \
-      rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*; \
-    fi
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    chromium \
+    chromium-driver \
+    fonts-liberation \
+    fonts-noto-color-emoji \
+    $OPENCLAW_DOCKER_APT_PACKAGES && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+
+# 设置 Chromium 环境变量 - 验证实际路径
+RUN echo "=== Checking Chromium installation ===" && \
+    which chromium || which chromium-browser || echo "Chromium not found in PATH" && \
+    ls -la /usr/bin/chrom* 2>/dev/null || echo "No chromium binaries in /usr/bin"
+ENV CHROMIUM_PATH=/usr/bin/chromium
+ENV CHROMIUM_FLAGS="--no-sandbox --disable-gpu --disable-dev-shm-usage --headless"
+
+# 安装 clawdhub 全局工具及其依赖
+RUN npm install -g clawdhub undici && \
+    echo "=== Verifying clawdhub installation ===" && \
+    which clawdhub && \
+    npm list -g clawdhub undici
 
 # Set build-time environment variables for plugin detection
 # These will be used during the build process to determine which plugins to include

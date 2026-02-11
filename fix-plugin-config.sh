@@ -116,9 +116,9 @@ cat > "$CONFIG_FILE" << EOF
     }
   },
   "skills": {
-    "autoInstall": false,
-    "requireUserConfirmation": false,
-    "maxPerSession": 3,
+    "autoInstall": ${OPENCLAW_SKILLS_AUTO_INSTALL:-true},
+    "requireUserConfirmation": ${OPENCLAW_SKILLS_REQUIRE_CONFIRMATION:-false},
+    "maxPerSession": ${OPENCLAW_SKILLS_MAX_PER_SESSION:-3},
     "install": {
       "nodeManager": "npm"
     }
