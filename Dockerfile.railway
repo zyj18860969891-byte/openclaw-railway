@@ -28,30 +28,11 @@ ENV CHROMIUM_FLAGS="--no-sandbox --disable-gpu --disable-dev-shm-usage --headles
 # 安装 clawdhub 全局工具及其依赖
 RUN npm install -g clawdhub undici
 
-# 复制依赖文件以获得更好的缓存
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
-COPY tsconfig.json ./
-COPY tsconfig.base.json* ./
+# 复制所有文件
+COPY . .
 
-# 安装依赖 - 使用 frozen-lockfile 加速
-RUN pnpm install --frozen-lockfile
-
-# 复制源代码
-COPY scripts ./scripts
-COPY src ./src
-COPY apps ./apps
-COPY packages ./packages
-COPY extensions ./extensions
-COPY patches ./patches
-COPY vendor ./vendor
-COPY docs ./docs
-COPY ui ./ui
-COPY copy-templates.sh ./
-COPY fix-plugins.sh ./
-COPY fix-plugin-config.sh ./
-COPY healthcheck.sh ./
-COPY diagnose-plugins.sh ./
-COPY debug-plugins.sh ./
+# 安装依赖
+RUN pnpm install
 
 # 复制模板文件
 RUN chmod +x /app/copy-templates.sh && /app/copy-templates.sh

@@ -48,15 +48,11 @@ ENV FEISHU_ENABLED=${FEISHU_ENABLED:-true} \
     DISCORD_ENABLED=${DISCORD_ENABLED:-false} \
     SLACK_ENABLED=${SLACK_ENABLED:-false}
 
-# Copy dependency files first for better caching
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc tsconfig.json ./
-COPY tsconfig.base.json* ./
-
-# Install dependencies with frozen lockfile for speed
-RUN pnpm install --frozen-lockfile
-
-# Copy all source files
+# Copy all source files first
 COPY . .
+
+# Install dependencies
+RUN pnpm install
 
 # Copy template files and prepare build
 RUN chmod +x /app/copy-templates.sh && /app/copy-templates.sh
