@@ -1,4 +1,4 @@
-# Railway 优化的 Dockerfile
+# Railway 优化的 Dockerfile - 快速构建版本
 FROM node:22-bookworm@sha256:cd7bcd2e7a1e6f72052feb023c7f6b722205d3fcab7bbcbd2d1bfdab10b1e935
 
 # 安装 Bun（构建脚本需要）
@@ -9,12 +9,10 @@ RUN corepack enable
 
 WORKDIR /app
 
-# Railway 环境变量 - 安装 curl 和 Chromium 浏览器
+# Railway 环境变量 - 安装 Chromium 浏览器
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    curl \
-    ca-certificates \
     chromium \
     chromium-driver \
     fonts-liberation \
@@ -23,26 +21,19 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
-# 设置 Chromium 环境变量 - 验证实际路径
-RUN echo "=== Checking Chromium installation ===" && \
-    which chromium || which chromium-browser || echo "Chromium not found in PATH" && \
-    ls -la /usr/bin/chrom* 2>/dev/null || echo "No chromium binaries in /usr/bin"
+# 设置 Chromium 环境变量
 ENV CHROMIUM_PATH=/usr/bin/chromium
 ENV CHROMIUM_FLAGS="--no-sandbox --disable-gpu --disable-dev-shm-usage --headless"
 
 # 安装 clawdhub 全局工具及其依赖
-RUN npm install -g clawdhub undici && \
-    echo "=== Verifying clawdhub installation ===" && \
-    which clawdhub && \
-    npm list -g clawdhub undici
+RUN npm install -g clawdhub undici
 
 # 复制依赖文件以获得更好的缓存
-COPY package.json ./package.json
-COPY pnpm-lock.yaml ./pnpm-lock.yaml
-COPY pnpm-workspace.yaml ./pnpm-workspace.yaml
-COPY .npmrc ./.npmrc
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY tsconfig.json ./
+COPY tsconfig.base.json* ./
 
-# 安装依赖
+# 安装依赖 - 使用 frozen-lockfile 加速
 RUN pnpm install --frozen-lockfile
 
 # 复制源代码
@@ -53,22 +44,53 @@ COPY packages ./packages
 COPY extensions ./extensions
 COPY patches ./patches
 COPY vendor ./vendor
+COPY docs ./docs
+COPY ui ./ui
+COPY copy-templates.sh ./
+COPY fix-plugins.sh ./
+COPY fix-plugin-config.sh ./
+COPY healthcheck.sh ./
+COPY diagnose-plugins.sh ./
+COPY debug-plugins.sh ./
 
-# 构建 UI
-COPY ui/package.json ./ui/
-RUN pnpm ui:build
+# 复制模板文件
+RUN chmod +x /app/copy-templates.sh && /app/copy-templates.sh
 
-# 调试：检查A2UI目录
-RUN echo "=== DEBUG: Checking A2UI directories ===" && \
-    ls -la /app/vendor/a2ui/renderers/lit 2>&1 || echo "A2UI renderer dir missing" && \
-    ls -la /app/apps/shared/OpenClawKit/Tools/CanvasA2UI 2>&1 || echo "CanvasA2UI dir missing" && \
-    echo "=== END DEBUG ==="
-
-# 构建应用程序
+# 构建应用程序 - 使用增量编译
 RUN OPENCLAW_A2UI_SKIP_MISSING=1 pnpm build
 
+# 构建 UI
+RUN pnpm ui:build
+
+# 构建和复制插件
+RUN chmod +x /app/scripts/build-enabled-plugins.ts && \
+    node --import tsx /app/scripts/build-enabled-plugins.ts && \
+    chmod +x /app/scripts/copy-plugins.ts && \
+    node --import tsx /app/scripts/copy-plugins.ts
+
 # 创建数据目录
-RUN mkdir -p /data && chown -R node:node /data
+RUN mkdir -p /tmp/openclaw /tmp/workspace /data/.openclaw && \
+    chown -R root:root /tmp/openclaw /tmp/workspace /data/.openclaw
+
+# 修复插件配置
+RUN chmod +x /app/fix-plugins.sh && /app/fix-plugins.sh && \
+    chmod +x /app/fix-plugin-config.sh && \
+    chmod +x /app/healthcheck.sh && \
+    chmod +x /app/diagnose-plugins.sh && \
+    chmod +x /app/debug-plugins.sh
+
+ENV NODE_ENV=production
+ENV PORT=8080
+ENV OPENCLAW_STATE_DIR=/tmp/openclaw
+ENV OPENCLAW_WORKSPACE_DIR=/tmp/workspace
+ENV HOME=/tmp/openclaw
+ENV USER=root
+
+# 确保dist目录权限正确
+RUN chown -R node:node /app/dist
 
 # Railway 暴露端口
 EXPOSE 8080
+
+# 启动命令
+CMD bash -c 'echo "=== 环境变量 ==="; env | grep -E "(GATEWAY_TRUSTED_PROXIES|RAILWAY_ENVIRONMENT|NODE_ENV|OPENCLAW_CONFIG_PATH|OPENCLAW_SKILLS)" | sort; echo "=== 生成配置前 ==="; cat /tmp/openclaw/openclaw.json 2>/dev/null || echo "配置文件不存在"; /app/fix-plugin-config.sh; echo "=== 生成配置后 ==="; cat /tmp/openclaw/openclaw.json; echo "=== 启动OpenClaw ==="; export OPENCLAW_CONFIG_PATH=/tmp/openclaw/openclaw.json; export OPENCLAW_LOGGING_LEVEL=info; exec node dist/index.js gateway --allow-unconfigured --auth token --bind lan --port 8080 --verbose'

@@ -1,7 +1,7 @@
-# Railway 优化的 Dockerfile
+# Railway 优化的 Dockerfile - cloudclawd2 快速构建版本
 FROM node:22-bookworm@sha256:cd7bcd2e7a1e6f72052feb023c7f6b722205d3fcab7bbcbd2d1bfdab10b1e935
 
-# 安装 Bun（构建脚本需要）
+# Install Bun (required for build scripts)
 RUN curl -fsSL https://bun.sh/install | bash
 ENV PATH="/root/.bun/bin:${PATH}"
 
@@ -9,12 +9,16 @@ RUN corepack enable
 
 WORKDIR /app
 
-# Railway 环境变量 - 安装 curl 和 Chromium 浏览器
+# Expose port 8080 for Railway
+EXPOSE 8080
+
+# Build argument to force cache invalidation
+ARG CACHE_BUST=2026-02-11-OPTIMIZED-BUILD
+
+# Install system dependencies in single layer
 ARG OPENCLAW_DOCKER_APT_PACKAGES=""
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    curl \
-    ca-certificates \
     chromium \
     chromium-driver \
     fonts-liberation \
@@ -23,52 +27,68 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
-# 设置 Chromium 环境变量 - 验证实际路径
-RUN echo "=== Checking Chromium installation ===" && \
-    which chromium || which chromium-browser || echo "Chromium not found in PATH" && \
-    ls -la /usr/bin/chrom* 2>/dev/null || echo "No chromium binaries in /usr/bin"
+# Set Chromium environment variables
 ENV CHROMIUM_PATH=/usr/bin/chromium
 ENV CHROMIUM_FLAGS="--no-sandbox --disable-gpu --disable-dev-shm-usage --headless"
 
-# 安装 clawdhub 全局工具及其依赖
-RUN npm install -g clawdhub undici && \
-    echo "=== Verifying clawdhub installation ===" && \
-    which clawdhub && \
-    npm list -g clawdhub undici
+# Install clawdhub globally
+RUN npm install -g clawdhub undici
 
-# 复制依赖文件以获得更好的缓存
-COPY package.json ./package.json
-COPY pnpm-lock.yaml ./pnpm-lock.yaml
-COPY pnpm-workspace.yaml ./pnpm-workspace.yaml
-COPY .npmrc ./.npmrc
+# Set build-time environment variables for plugin detection
+ARG FEISHU_ENABLED
+ARG DINGTALK_ENABLED
+ARG WECOM_ENABLED
+ARG TELEGRAM_ENABLED
+ARG DISCORD_ENABLED
+ARG SLACK_ENABLED
+ENV FEISHU_ENABLED=${FEISHU_ENABLED:-true} \
+    DINGTALK_ENABLED=${DINGTALK_ENABLED:-true} \
+    WECOM_ENABLED=${WECOM_ENABLED:-false} \
+    TELEGRAM_ENABLED=${TELEGRAM_ENABLED:-false} \
+    DISCORD_ENABLED=${DISCORD_ENABLED:-false} \
+    SLACK_ENABLED=${SLACK_ENABLED:-false}
 
-# 安装依赖
+# Copy dependency files first for better caching
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc tsconfig.json ./
+COPY tsconfig.base.json* ./
+
+# Install dependencies with frozen lockfile for speed
 RUN pnpm install --frozen-lockfile
 
-# 复制源代码
-COPY scripts ./scripts
-COPY src ./src
-COPY apps ./apps
-COPY packages ./packages
-COPY extensions ./extensions
-COPY patches ./patches
-COPY vendor ./vendor
+# Copy all source files
+COPY . .
 
-# 构建 UI
-COPY ui/package.json ./ui/
-RUN pnpm ui:build
+# Copy template files and prepare build
+RUN chmod +x /app/copy-templates.sh && /app/copy-templates.sh
 
-# 调试：检查A2UI目录
-RUN echo "=== DEBUG: Checking A2UI directories ===" && \
-    ls -la /app/vendor/a2ui/renderers/lit 2>&1 || echo "A2UI renderer dir missing" && \
-    ls -la /app/apps/shared/OpenClawKit/Tools/CanvasA2UI 2>&1 || echo "CanvasA2UI dir missing" && \
-    echo "=== END DEBUG ==="
-
-# 构建应用程序
+# Build the application with incremental compilation
 RUN OPENCLAW_A2UI_SKIP_MISSING=1 pnpm build
 
-# 创建数据目录
-RUN mkdir -p /data && chown -R node:node /data
+# Build UI
+ENV OPENCLAW_PREFER_PNPM=1
+RUN pnpm ui:build
 
-# Railway 暴露端口
-EXPOSE 8080
+# Build and copy plugins in single layer
+RUN chmod +x /app/scripts/build-enabled-plugins.ts && \
+    node --import tsx /app/scripts/build-enabled-plugins.ts && \
+    chmod +x /app/scripts/copy-plugins.ts && \
+    node --import tsx /app/scripts/copy-plugins.ts
+
+# Create data directories and fix permissions
+RUN mkdir -p /tmp/openclaw /tmp/workspace /data/.openclaw && \
+    chown -R root:root /tmp/openclaw /tmp/workspace /data/.openclaw && \
+    chmod +x /app/fix-plugins.sh && /app/fix-plugins.sh && \
+    chmod +x /app/fix-plugin-config.sh /app/healthcheck.sh /app/diagnose-plugins.sh /app/debug-plugins.sh && \
+    chown -R node:node /app/dist
+
+ENV NODE_ENV=production
+ENV PORT=8080
+ENV OPENCLAW_STATE_DIR=/tmp/openclaw
+ENV OPENCLAW_WORKSPACE_DIR=/tmp/workspace
+ENV HOME=/tmp/openclaw
+ENV USER=root
+
+USER root
+
+# Railway startup command
+CMD bash -c 'echo "=== 环境变量 ==="; env | grep -E "(GATEWAY_TRUSTED_PROXIES|RAILWAY_ENVIRONMENT|NODE_ENV|OPENCLAW_CONFIG_PATH|OPENCLAW_SKILLS)" | sort; echo "=== 生成配置前 ==="; cat /tmp/openclaw/openclaw.json 2>/dev/null || echo "配置文件不存在"; /app/fix-plugin-config.sh; echo "=== 生成配置后 ==="; cat /tmp/openclaw/openclaw.json; echo "=== 调试插件状态 ==="; /app/debug-plugins.sh; echo "=== 详细诊断 ==="; /app/diagnose-plugins.sh; echo "=== 启动OpenClaw ==="; export OPENCLAW_CONFIG_PATH=/tmp/openclaw/openclaw.json; export OPENCLAW_LOGGING_LEVEL=info; exec node dist/index.js gateway --allow-unconfigured --auth token --bind lan --port 8080 --verbose'
