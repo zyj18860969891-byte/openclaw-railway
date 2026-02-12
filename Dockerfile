@@ -23,9 +23,19 @@ RUN apt-get update && \
     chromium-driver \
     fonts-liberation \
     fonts-noto-color-emoji \
+    python3 \
+    python3-pip \
     $OPENCLAW_DOCKER_APT_PACKAGES && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+
+# Install Python dependencies for skills
+RUN pip3 install --no-cache-dir \
+    Pillow \
+    markdown \
+    pyyaml \
+    playwright && \
+    playwright install chromium
 
 # Set Chromium environment variables
 ENV CHROMIUM_PATH=/usr/bin/chromium
