@@ -121,3 +121,24 @@ OPENCLAW_LOGGING_LEVEL=info
 OPENCLAW_STATE_DIR=/data/openclaw
 OPENCLAW_WORKSPACE_DIR=/tmp/workspace
 OPENCLAW_CONFIG_PATH=/data/openclaw/openclaw.json
+
+## ============================================
+## 📋 部署新服务时的修改清单
+## ============================================
+# 1. 修改实例名称（如 cloudclawd3）
+# 2. 生成新的唯一 Token: openssl rand -hex 32
+# 3. 填写新的飞书/钉钉凭证
+# 4. 确保 OPENCLAW_WORKSPACE_DIR=/tmp/workspace
+# 5. 确保 OPENCLAW_CONFIG_PATH=/data/openclaw/openclaw.json
+
+## ============================================
+## ✅ 验证清单
+## ============================================
+# 部署后检查日志确认：
+# 1. ✅ 环境变量正确加载
+# 2. ✅ 通道配置正确
+# 3. ✅ Gateway Token 正确设置
+# 4. ✅ Python 依赖安装成功（查看构建日志）
+# 5. ✅ 服务正常启动（监听 ws://0.0.0.0:8080）
+# 6. ✅ WebSocket 连接正常
+# 7. ✅ 技能执行正常（无 exec failed 错误）
