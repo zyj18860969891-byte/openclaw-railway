@@ -96,5 +96,5 @@ ENV USER=root
 
 USER root
 
-# Railway startup command
-CMD bash -c 'echo "=== 环境变量 ==="; env | grep -E "(GATEWAY_TRUSTED_PROXIES|RAILWAY_ENVIRONMENT|NODE_ENV|OPENCLAW_CONFIG_PATH|OPENCLAW_SKILLS)" | sort; echo "=== 生成配置前 ==="; cat /tmp/openclaw/openclaw.json 2>/dev/null || echo "配置文件不存在"; /app/fix-plugin-config.sh; echo "=== 生成配置后 ==="; cat /tmp/openclaw/openclaw.json; echo "=== 调试插件状态 ==="; /app/debug-plugins.sh; echo "=== 详细诊断 ==="; /app/diagnose-plugins.sh; echo "=== 启动OpenClaw ==="; export OPENCLAW_CONFIG_PATH=/tmp/openclaw/openclaw.json; export OPENCLAW_LOGGING_LEVEL=info; exec node dist/index.js gateway --allow-unconfigured --auth token --bind lan --port 8080 --verbose'
+# Railway startup command - using JSON format to avoid signal handling issues
+CMD ["bash", "-c", "echo \"=== 环境变量 ===\"; env | grep -E \"(GATEWAY_TRUSTED_PROXIES|RAILWAY_ENVIRONMENT|NODE_ENV|OPENCLAW_CONFIG_PATH|OPENCLAW_SKILLS|PORT)\" | sort; echo \"=== 生成配置前 ===\"; cat /tmp/openclaw/openclaw.json 2>/dev/null || echo \"配置文件不存在\"; /app/fix-plugin-config.sh; echo \"=== 生成配置后 ===\"; cat /tmp/openclaw/openclaw.json; echo \"=== 调试插件状态 ===\"; /app/debug-plugins.sh; echo \"=== 详细诊断 ===\"; /app/diagnose-plugins.sh; echo \"=== 启动OpenClaw ===\"; export OPENCLAW_CONFIG_PATH=/tmp/openclaw/openclaw.json; export OPENCLAW_LOGGING_LEVEL=info; exec node dist/index.js gateway --allow-unconfigured --auth token --bind lan --port ${PORT:-8080} --verbose"]
