@@ -30,7 +30,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 # Install Python dependencies for skills
-RUN pip3 install --no-cache-dir \
+RUN pip3 install --no-cache-dir --break-system-packages \
     Pillow \
     markdown \
     pyyaml \
