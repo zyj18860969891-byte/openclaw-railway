@@ -61,8 +61,8 @@ ENV FEISHU_ENABLED=${FEISHU_ENABLED:-true} \
 # Copy all source files first
 COPY . .
 
-# Install dependencies
-RUN pnpm install
+# Install dependencies with retry mechanism
+RUN pnpm install || (echo "First pnpm install failed, retrying..." && sleep 10 && pnpm install)
 
 # Copy template files and prepare build
 RUN chmod +x /app/copy-templates.sh && /app/copy-templates.sh
