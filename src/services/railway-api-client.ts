@@ -33,7 +33,7 @@ export class RailwayApiClient {
     this.projectId = projectId
 
     this.client = axios.create({
-      baseURL: 'https://api.railway.app/graphql',
+      baseURL: 'https://backboard.railway.com/graphql/v2',
       headers: {
         'Authorization': `Bearer ${apiToken}`,
         'Content-Type': 'application/json'
@@ -42,15 +42,12 @@ export class RailwayApiClient {
   }
 
   /**
-   * 创建新服务
+   * 创建新服务（从GitHub仓库）
    */
   async createService(config: RailwayServiceConfig) {
     const mutation = `
-      mutation CreateService($projectId: String!, $name: String!) {
-        serviceCreate(input: {
-          projectId: $projectId
-          name: $name
-        }) {
+      mutation CreateService($input: ServiceCreateInput!) {
+        serviceCreate(input: $input) {
           service {
             id
             name
@@ -63,8 +60,14 @@ export class RailwayApiClient {
     const response = await this.client.post('', {
       query: mutation,
       variables: {
-        projectId: config.projectId,
-        name: config.name
+        input: {
+          projectId: config.projectId,
+          name: config.name,
+          source: {
+            repo: config.githubRepo,
+            branch: config.githubBranch || 'main'
+          }
+        }
       }
     })
 

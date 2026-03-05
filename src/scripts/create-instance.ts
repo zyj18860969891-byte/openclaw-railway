@@ -319,17 +319,11 @@ class InstanceCreationEngine {
       const service = await this.railwayClient.createService({
         projectId: projectId,
         name: this.config.name,
-        githubRepo: 'zyj18860969891-byte/openclaw-railway'
+        githubRepo: 'zyj18860969891-byte/openclaw-railway',
+        githubBranch: 'main'
       })
       console.log(`✅ Railway服务创建成功: ${service.id}`)
-
-      console.log('🔗 连接GitHub仓库...')
-      await this.railwayClient.connectGithubRepository(
-        service.id,
-        'zyj18860969891-byte/openclaw-railway',
-        'main'
-      )
-      console.log('✅ GitHub仓库连接成功')
+      console.log('✅ 服务已直接连接GitHub仓库')
 
       console.log('🔧 设置环境变量...')
       const varResults = await this.railwayClient.setEnvironmentVariables(service.id, envVars)

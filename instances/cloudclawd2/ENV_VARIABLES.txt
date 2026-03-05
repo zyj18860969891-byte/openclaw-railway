@@ -4,11 +4,17 @@
 ## ============================================
 ## 📋 快速复制版（直接复制到 Railway Variables）
 ## ============================================
+## ⚠️ 注意：本服务最多支持 8 个通道
 ##
 NODE_ENV=production
 RAILWAY_ENVIRONMENT=production
 MODEL_NAME=openrouter/stepfun/step-3.5-flash:free
 OPENROUTER_API_KEY=YOUR_OPENROUTER_API_KEY
+# === Web搜索配置（Brave Search API）===
+BRAVE_API_KEY=BSAWjRLSKRtH5eXE2Nz5r7PkGwgBT9x
+# 申请地址: https://brave.com/search/api/
+# 选择 "Data for Search" 计划生成API密钥
+
 GATEWAY_AUTH_MODE=token
 OPENCLAW_GATEWAY_TOKEN=cloudclawd2Token2026SecureKey987654321
 FEISHU_ENABLED=true
@@ -17,10 +23,20 @@ WECOM_ENABLED=false
 TELEGRAM_ENABLED=false
 DISCORD_ENABLED=false
 SLACK_ENABLED=false
-FEISHU_APP_ID=YOUR_FEISHU_APP_ID
-FEISHU_APP_SECRET=YOUR_FEISHU_APP_SECRET
-DINGTALK_CLIENT_ID=YOUR_DINGTALK_CLIENT_ID
-DINGTALK_CLIENT_SECRET=YOUR_DINGTALK_CLIENT_SECRET
+
+# === 飞书多通道配置（支持多个飞书应用）===
+# 格式: FEISHU_APP_ID_N 和 FEISHU_APP_SECRET_N (N=1,2,3...)
+FEISHU_APP_ID_1=YOUR_FEISHU_APP_ID_1
+FEISHU_APP_SECRET_1=YOUR_FEISHU_APP_SECRET_1
+FEISHU_APP_ID_2=YOUR_FEISHU_APP_ID_2
+FEISHU_APP_SECRET_2=YOUR_FEISHU_APP_SECRET_2
+
+# === 钉钉多通道配置（支持多个钉钉应用）===
+# 格式: DINGTALK_CLIENT_ID_N 和 DINGTALK_CLIENT_SECRET_N (N=1,2,3...)
+DINGTALK_CLIENT_ID_1=YOUR_DINGTALK_CLIENT_ID_1
+DINGTALK_CLIENT_SECRET_1=YOUR_DINGTALK_CLIENT_SECRET_1
+DINGTALK_CLIENT_ID_2=YOUR_DINGTALK_CLIENT_ID_2
+DINGTALK_CLIENT_SECRET_2=YOUR_DINGTALK_CLIENT_SECRET_2
 GATEWAY_BIND=lan
 GATEWAY_TRUSTED_PROXIES=100.64.0.0/10,127.0.0.1/32
 DM_SCOPE=per-peer
@@ -69,18 +85,35 @@ SLACK_ENABLED=false
 
 ## ============================================
 ## ⚠️ 用户凭证配置（需要新用户填写）
+## ⚠️ 注意：单个服务最多支持 8 个通道总数
 ## ============================================
 
 # === AI 模型配置 ===
 OPENROUTER_API_KEY=YOUR_OPENROUTER_API_KEY
 
-# === 飞书凭证 ===
-FEISHU_APP_ID=YOUR_FEISHU_APP_ID
-FEISHU_APP_SECRET=YOUR_FEISHU_APP_SECRET
+# === 飞书多通道凭证（支持多个飞书应用）===
+# 格式: FEISHU_APP_ID_N 和 FEISHU_APP_SECRET_N (N=1,2,3...)
+# 可配置 1 到多个飞书应用，但总通道数不超过 8 个
+FEISHU_APP_ID_1=YOUR_FEISHU_APP_ID_1
+FEISHU_APP_SECRET_1=YOUR_FEISHU_APP_SECRET_1
+FEISHU_APP_ID_2=YOUR_FEISHU_APP_ID_2
+FEISHU_APP_SECRET_2=YOUR_FEISHU_APP_SECRET_2
+FEISHU_APP_ID_3=YOUR_FEISHU_APP_ID_3
+FEISHU_APP_SECRET_3=YOUR_FEISHU_APP_SECRET_3
 
-# === 钉钉凭证 ===
-DINGTALK_CLIENT_ID=YOUR_DINGTALK_CLIENT_ID
-DINGTALK_CLIENT_SECRET=YOUR_DINGTALK_CLIENT_SECRET
+# === 钉钉多通道凭证（支持多个钉钉应用）===
+# 格式: DINGTALK_CLIENT_ID_N 和 DINGTALK_CLIENT_SECRET_N (N=1,2,3...)
+# 可配置 1 到多个钉钉应用，但总通道数不超过 8 个
+DINGTALK_CLIENT_ID_1=YOUR_DINGTALK_CLIENT_ID_1
+DINGTALK_CLIENT_SECRET_1=YOUR_DINGTALK_CLIENT_SECRET_1
+DINGTALK_CLIENT_ID_2=YOUR_DINGTALK_CLIENT_ID_2
+DINGTALK_CLIENT_SECRET_2=YOUR_DINGTALK_CLIENT_SECRET_2
+
+# === 企业微信多通道凭证（当WECOM_ENABLED=true时配置）===
+# 格式: WECOM_CORP_ID_N, WECOM_CORP_SECRET_N, WECOM_AGENT_ID_N (N=1,2,3...)
+# WECOM_CORP_ID_1=YOUR_WECOM_CORP_ID_1
+# WECOM_CORP_SECRET_1=YOUR_WECOM_CORP_SECRET_1
+# WECOM_AGENT_ID_1=YOUR_WECOM_AGENT_ID_1
 
 ## ============================================
 ## 系统配置（保持默认即可）
@@ -127,18 +160,33 @@ OPENCLAW_CONFIG_PATH=/data/openclaw/openclaw.json
 ## ============================================
 # 1. 修改实例名称（如 cloudclawd3）
 # 2. 生成新的唯一 Token: openssl rand -hex 32
-# 3. 填写新的飞书/钉钉凭证
-# 4. 确保 OPENCLAW_WORKSPACE_DIR=/tmp/workspace
-# 5. 确保 OPENCLAW_CONFIG_PATH=/data/openclaw/openclaw.json
+# 3. 填写新的飞书/钉钉凭证（支持多个同类型通道）
+# 4. 确保不超过 8 个通道总数（所有通道类型之和）
+# 5. 确保 OPENCLAW_WORKSPACE_DIR=/tmp/workspace
+# 6. 确保 OPENCLAW_CONFIG_PATH=/data/openclaw/openclaw.json
+
+## ============================================
+## 📊 通道容量管理
+## ============================================
+# 本服务最多支持 8 个通道总数
+# 容量计算示例：
+# - 飞书 3 个 + 钉钉 2 个 + 企业微信 2 个 = 7 个 ✅ 可用
+# - 飞书 5 个 + 钉钉 3 个 = 8 个 ✅ 可用
+# - 飞书 5 个 + 钉钉 4 个 = 9 个 ❌ 超限
+#
+# 当某个服务满员时，新的通道申请将分配到其他有空位的服务
+# 或创建新的服务实例（cloudclawd3, cloudclawd4, 等）
 
 ## ============================================
 ## ✅ 验证清单
 ## ============================================
 # 部署后检查日志确认：
-# 1. ✅ 环境变量正确加载
-# 2. ✅ 通道配置正确
+# 1. ✅ 环境变量正确加载（包括所有多通道配置）
+# 2. ✅ 通道配置正确（所有FEISHU_APP_ID_N等均被识别）
 # 3. ✅ Gateway Token 正确设置
 # 4. ✅ Python 依赖安装成功（查看构建日志）
 # 5. ✅ 服务正常启动（监听 ws://0.0.0.0:8080）
 # 6. ✅ WebSocket 连接正常
-# 7. ✅ 技能执行正常（无 exec failed 错误）
+# 7. ✅ 所有通道实例正常初始化（查看启动日志中的channel initialization）
+# 8. ✅ 技能执行正常（无 exec failed 错误）
+# 9. ✅ 通道容量管理正常（不超过 8 个）
