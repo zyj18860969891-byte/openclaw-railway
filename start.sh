@@ -22,17 +22,17 @@ cat <<EOF > ~/.openclaw/moltbot.json
   "session": {
     "dmScope": "per-peer"
   },
-  "channels": {
+"channels": {
     "feishu": {
       "enabled": \${FEISHU_ENABLED:-false},
-      "appId": "\${FEISHU_APP_ID}",
-      "appSecret": "\${FEISHU_APP_SECRET}",
+      "appId": "\${FEISHU_1_APP_ID}",
+      "appSecret": "\${FEISHU_1_APP_SECRET}",
       "connectionMode": "websocket"
     },
     "dingtalk": {
       "enabled": \${DINGTALK_ENABLED:-false},
-      "clientId": "\${DINGTALK_CLIENT_ID}",
-      "clientSecret": "\${DINGTALK_CLIENT_SECRET}",
+      "clientId": "\${DINGTALK_1_CLIENT_ID}",
+      "clientSecret": \${DINGTALK_1_CLIENT_SECRET},
       "dmPolicy": "pairing"
     }
   },
