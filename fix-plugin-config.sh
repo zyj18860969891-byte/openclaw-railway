@@ -31,8 +31,8 @@ done
 # 生成增强的配置文件，包含插件配置和自动技能安装配置
 echo "=== 生成增强配置文件 ==="
 echo "使用环境变量: OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:0:10}..."
-echo "使用环境变量: FEISHU_APP_ID=${FEISHU_APP_ID}"
-echo "使用环境变量: DINGTALK_CLIENT_ID=${DINGTALK_CLIENT_ID}"
+echo "使用环境变量: FEISHU_1_APP_ID=${FEISHU_1_APP_ID}"
+echo "使用环境变量: DINGTALK_1_CLIENT_ID=${DINGTALK_1_CLIENT_ID}"
 
 cat > "$CONFIG_FILE" << EOF
 {
@@ -100,16 +100,16 @@ cat > "$CONFIG_FILE" << EOF
   "channels": {
     "feishu": {
       "enabled": true,
-      "appId": "${FEISHU_APP_ID}",
-      "appSecret": "${FEISHU_APP_SECRET}",
+      "appId": "${FEISHU_1_APP_ID}",
+      "appSecret": "${FEISHU_1_APP_SECRET}",
       "connectionMode": "websocket",
       "dmPolicy": "open",
       "groupPolicy": "open"
     },
     "dingtalk": {
       "enabled": true,
-      "clientId": "${DINGTALK_CLIENT_ID}",
-      "clientSecret": "${DINGTALK_CLIENT_SECRET}",
+      "clientId": "${DINGTALK_1_CLIENT_ID}",
+      "clientSecret": "${DINGTALK_1_CLIENT_SECRET}",
       "connectionMode": "webhook",
       "dmPolicy": "open",
       "groupPolicy": "open"
