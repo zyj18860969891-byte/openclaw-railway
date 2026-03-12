@@ -80,3 +80,30 @@
   
   # === Web搜索配置（Brave Search API）===
   BRAVE_API_KEY="BSAWjRLSKRtH5eXE2Nz5r7PkGwgBT9x"
+  
+  # === 飞书配置 ===
+  FEISHU_APP_ID_1="cli_a1b2c3d4e5f6g7h8"
+  FEISHU_APP_SECRET_1="jklmno1p2q3r4s5t6u7v8w9x0y1z2"
+  FEISHU_ENABLED="true"
+  
+  # === 钉钉配置 ===
+  DINGTALK_CLIENT_ID_1="dingtalk_client_id_123456"
+  DINGTALK_CLIENT_SECRET_1="dingtalk_client_secret_abcdef"
+  DINGTALK_ENABLED="true"
+  
+  # === 企业微信配置 ===
+  WECOM_CORP_ID_1="your_wecom_corp_id"
+  WECOM_SECRET_1="your_wecom_secret"
+  WECOM_ENABLED="false"
+  
+  # === Telegram配置 ===
+  TELEGRAM_BOT_TOKEN_1="your_telegram_bot_token"
+  TELEGRAM_ENABLED="false"
+  
+  # === Discord配置 ===
+  DISCORD_BOT_TOKEN_1="your_discord_bot_token"
+  DISCORD_ENABLED="false"
+  
+  # === Slack配置 ===
+  SLACK_BOT_TOKEN_1="your_slack_bot_token"
+  SLACK_ENABLED="false"

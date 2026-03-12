@@ -25,15 +25,32 @@ cat <<EOF > ~/.openclaw/moltbot.json
 "channels": {
     "feishu": {
       "enabled": \${FEISHU_ENABLED:-false},
-      "appId": "\${FEISHU_1_APP_ID}",
-      "appSecret": "\${FEISHU_1_APP_SECRET}",
+      "appId": "\${FEISHU_APP_ID_1}",
+      "appSecret": "\${FEISHU_APP_SECRET_1}",
       "connectionMode": "websocket"
     },
     "dingtalk": {
       "enabled": \${DINGTALK_ENABLED:-false},
-      "clientId": "\${DINGTALK_1_CLIENT_ID}",
-      "clientSecret": \${DINGTALK_1_CLIENT_SECRET},
+      "clientId": "\${DINGTALK_CLIENT_ID_1}",
+      "clientSecret": \${DINGTALK_CLIENT_SECRET_1},
       "dmPolicy": "pairing"
+    },
+    "wecom": {
+      "enabled": \${WECOM_ENABLED:-false},
+      "corpId": "\${WECOM_CORP_ID_1}",
+      "secret": "\${WECOM_SECRET_1}"
+    },
+    "telegram": {
+      "enabled": \${TELEGRAM_ENABLED:-false},
+      "botToken": "\${TELEGRAM_BOT_TOKEN_1}"
+    },
+    "discord": {
+      "enabled": \${DISCORD_ENABLED:-false},
+      "botToken": "\${DISCORD_BOT_TOKEN_1}"
+    },
+    "slack": {
+      "enabled": \${SLACK_ENABLED:-false},
+      "botToken": "\${SLACK_BOT_TOKEN_1}"
     }
   },
   "gateway": {
