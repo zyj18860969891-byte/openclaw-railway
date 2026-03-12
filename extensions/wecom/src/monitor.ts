@@ -153,7 +153,7 @@ function buildStreamPlaceholderReply(streamId: string): { msgtype: "stream"; str
     stream: {
       id: streamId,
       finish: false,
-      content: "稍等~",
+      content: "1",
     },
   };
 }

@@ -70,12 +70,19 @@ export function parseDingtalkMessage(raw: DingtalkRawMessage): DingtalkMessageCo
  * 判断是否 @提及了机器人
  *
  * - 如果提供了 robotCode，则只在 atUsers 包含 robotCode 时判定为提及机器人
- * - 如果缺少 robotCode，则退化为“存在任意 @”的判断
+ * - 如果缺少 robotCode，则退化为"存在任意 @"的判断
  */
 function resolveMentionedBot(raw: DingtalkRawMessage): boolean {
   const atUsers = raw.atUsers ?? [];
-  // 只要有 @，就认为机器人被提及（钉钉群聊机器人只有被 @才会收到消息）
-  return atUsers.length > 0;
+  const robotCode = raw.robotCode;
+  
+  if (robotCode) {
+    // 如果提供了 robotCode，则只在 atUsers 包含 robotCode 时判定为提及机器人
+    return atUsers.some(u => u.dingtalkId === robotCode);
+  } else {
+    // 如果没有 robotCode，则退化为"存在任意 @"的判断
+    return atUsers.length > 0;
+  }
 }
 
 /**
@@ -393,3 +400,6 @@ export async function handleDingtalkMessage(params: {
     logger.error(`failed to dispatch message: ${String(err)}`);
   }
 }
+
+// Re-export policy functions for testing
+export { checkDmPolicy, checkGroupPolicy } from "@openclaw/shared";
